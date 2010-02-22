@@ -27,10 +27,10 @@ void load_countries(char const * filename)
         country_info_t c = {0};
         int idx = 0;
 
-        c.iso   = strdup(tdb_field(db, ISO_FIELD));
-        c.iso3  = strdup(tdb_field(db, ISO3_FIELD));
-        c.fips  = strdup(tdb_field(db, FIPS_FIELD));
-        c.name  = strdup(tdb_field(db, NAME_FIELD));
+        c.iso   = xstrdup(tdb_field(db, ISO_FIELD));
+        c.iso3  = xstrdup(tdb_field(db, ISO3_FIELD));
+        c.fips  = xstrdup(tdb_field(db, FIPS_FIELD));
+        c.name  = xstrdup(tdb_field(db, NAME_FIELD));
 
         idx = vector_size(countries);
         hash_map_put(idx_by_iso, c.iso, &idx);

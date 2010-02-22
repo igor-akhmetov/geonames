@@ -120,7 +120,7 @@ void * hash_map_put(hash_map_t m, char const *key, void *data)
     
     for (i = start_pos;;) {
         if (!hash_map_key(m, i)) {
-            char * key_copy = strdup(key);
+            char * key_copy = xstrdup(key);
             ++m->nentries;
             vector_set(m->keys, i, &key_copy);
             return vector_set(m->entries, i, data);

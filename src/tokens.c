@@ -9,7 +9,7 @@
 static hash_map_t tokens;
 
 static void add_token(char *str, geoname_idx_t geo_idx) {
-    char *word = strdup(str);
+    char *word = xstrdup(str);
     int len = strlen(word);
 
     do {
@@ -55,7 +55,7 @@ static void add_token_with_spaces(char const *str, geoname_idx_t geo_idx) {
     if (!str)
         return;
 
-    token = strlower(strdup(str));
+    token = strlower(xstrdup(str));
     words = strsplit(token, " \t");
 
     for (j = 0; j != vector_size(words); ++j)
@@ -73,7 +73,7 @@ static void add_token_with_commas(char const *str, geoname_idx_t geo_idx) {
     if (!str)
         return;
 
-    token = strlower(strdup(str));
+    token = strlower(xstrdup(str));
     words = strsplit(token, ",");
 
     for (j = 0; j != vector_size(words); ++j)

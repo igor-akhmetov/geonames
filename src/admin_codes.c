@@ -24,7 +24,7 @@ void load_admin1_codes(char const *filename) {
     admin1_names = hash_map_init(sizeof(char const *));
 
     while (tdb_next_row(db)) {        
-        char *name = strdup(tdb_field(db, 1));
+        char *name = xstrdup(tdb_field(db, 1));
         hash_map_put(admin1_names, tdb_field(db, ADMIN1_NAME_FIELD), &name);
     }
 
@@ -39,8 +39,8 @@ void load_admin2_codes(char const *filename) {
     while (tdb_next_row(db)) {        
         admin2_names_t names;
 
-        names.name1 = strdup(tdb_field(db, ADMIN2_NAME1_FIELD));
-        names.name2 = strdup(tdb_field(db, ADMIN2_NAME2_FIELD));
+        names.name1 = xstrdup(tdb_field(db, ADMIN2_NAME1_FIELD));
+        names.name2 = xstrdup(tdb_field(db, ADMIN2_NAME2_FIELD));
 
         hash_map_put(admin2_names, tdb_field(db, 0), &names);
     }

@@ -30,11 +30,11 @@ void load_geonames(char const * filename) {
             continue;
 
         g.id                = atoi(tdb_field(db, ID_FIELD));
-        g.name              = strdup(tdb_field(db, NAME_FIELD));
-        g.alternate_names   = strdup(tdb_field(db, ALTERNATE_NAMES_FIELD));
+        g.name              = xstrdup(tdb_field(db, NAME_FIELD));
+        g.alternate_names   = xstrdup(tdb_field(db, ALTERNATE_NAMES_FIELD));
         g.country_idx       = country_idx_by_iso(tdb_field(db, COUNTRY_FIELD));
-        g.admin1_code       = strdup(tdb_field(db, ADMIN1_CODE_FIELD));
-        g.admin2_code       = strdup(tdb_field(db, ADMIN2_CODE_FIELD));
+        g.admin1_code       = xstrdup(tdb_field(db, ADMIN1_CODE_FIELD));
+        g.admin2_code       = xstrdup(tdb_field(db, ADMIN2_CODE_FIELD));
         g.population        = atoi(tdb_field(db, POPULATION_FIELD));
 
         vector_push(geonames, &g);
