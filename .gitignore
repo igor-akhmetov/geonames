@@ -1,0 +1,6 @@
+bin
+data
+*.user
+*.opensdf
+*.sdf
+*.suo
