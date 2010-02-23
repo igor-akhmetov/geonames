@@ -16,7 +16,8 @@ void error(char const *msg, ...)
     va_list args;
     va_start(args, msg);  
     vfprintf(stderr, msg, args);
-    va_end(args);   
+    va_end(args);
+    fputs("\n", stderr);
     exit(EXIT_FAILURE);
 }
 
