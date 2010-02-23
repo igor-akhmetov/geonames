@@ -51,9 +51,16 @@ geoname_indices_t mapped_geonames_by_token(char const *token) {
     start_pos = strhash(token) % size;
 
     for (i = start_pos;;) {
-        char const *cur_key = tokens.names + tokens.tokens[i].str_offset;
-        if (*cur_key) {
-            if (!strcmp(token, cur_key)) {
+        char const *last = tokens.names + tokens.tokens[i].str_offset;
+
+        if (*last) {
+            char const *first = last;
+
+            while (*first)
+                --first;
+            ++first;
+
+            if (!strncmp(token, first, last - first + 1)) {
                 mapped_geoindices_t const * v = (mapped_geoindices_t const *)
                     ((char *) tokens.indices + tokens.tokens[i].indices_offset);
                 if (v->size < 0)

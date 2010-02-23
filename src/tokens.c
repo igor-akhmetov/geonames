@@ -8,24 +8,48 @@
 
 static hash_map_t tokens;
 
+typedef struct {
+    int                 str_offset;
+    geoname_indices_t   indices;
+} token_info_t;
+
+static vector_t tokens_str;
+
+static int add_token_text(char const *str) {
+    int i, len = strlen(str);
+
+    for (i = 0; i <= len; ++i)
+        vector_push(tokens_str, &str[i]);
+
+    return vector_size(tokens_str) - 2;
+}
+
 static void add_token(char *str, geoname_idx_t geo_idx) {
     char *word = xstrdup(str);
     int len = strlen(word);
+    int token_str_pos = -1;
 
     do {
-        geoname_indices_t * geonames = hash_map_get(tokens, word);
+        token_info_t * info = hash_map_get(tokens, word);
         int size;
 
-        if (!geonames) {
-            vector_t v = vector_init(sizeof(geoname_idx_t));
-            geonames = (geoname_indices_t *) hash_map_put(tokens, word, &v);
+        if (!info) {
+            token_info_t new_info;
+
+            if (token_str_pos == -1)
+                token_str_pos = add_token_text(str);
+
+            new_info.str_offset = token_str_pos;
+            new_info.indices = vector_init(sizeof(geoname_idx_t));
+            info = (token_info_t *) hash_map_put(tokens, word, &new_info);
         }
 
-        size = vector_size(*geonames);
-        if (!size || geoname_idx(*geonames, size - 1) != geo_idx)
-            vector_push(*geonames, &geo_idx);
+        size = vector_size(info->indices);
+        if (!size || geoname_idx(info->indices, size - 1) != geo_idx)
+            vector_push(info->indices, &geo_idx);
 
         word[--len] = 0;
+        --token_str_pos;
     } while (len);
 
     free(word);
@@ -85,8 +109,11 @@ static void add_token_with_commas(char const *str, geoname_idx_t geo_idx) {
 
 void collect_tokens() {
     int i;
+    char zero = 0;
 
-    tokens = hash_map_init(sizeof(vector_t));
+    tokens = hash_map_init(sizeof(token_info_t));
+    tokens_str = vector_init(sizeof(char));
+    vector_push(tokens_str, &zero);
     
     for (i = 0; i != geonames_num(); ++i) {
         geoname_t const *g = geoname(i);
@@ -126,12 +153,12 @@ geoname_indices_t geonames_by_token(char const *token) {
     if (!has_token(token))
         return 0;
 
-    return *((geoname_indices_t *) hash_map_get(tokens, token));
+    return ((token_info_t *) hash_map_get(tokens, token))->indices;
 }
 
 void dump_tokens(FILE *f) {
     int i, size = hash_map_capacity(tokens);
-    int str_offset = 1, indices_offset = 0;
+    int indices_offset = 0;
 
     fwrite(&size, sizeof size, 1, f);
 
@@ -139,12 +166,11 @@ void dump_tokens(FILE *f) {
         char const *token = hash_map_key(tokens, i);
 
         if (token) {
-            int size = vector_size(geonames_by_token(token));
+            token_info_t const * info = (token_info_t const *) hash_map_get(tokens, token);
+            int size = vector_size(info->indices);
 
-            fwrite(&str_offset, sizeof str_offset, 1, f);
-            str_offset += strlen(token) + 1;
-            
-            fwrite(&indices_offset, sizeof indices_offset, 1, f);            
+            fwrite(&info->str_offset, sizeof info->str_offset, 1, f);
+            fwrite(&indices_offset, sizeof indices_offset, 1, f);
             indices_offset += sizeof(int) + (size > 1 ? size * sizeof(geoname_idx_t) : 0);
         } else {
             int data[] = {0, 0};
@@ -153,20 +179,14 @@ void dump_tokens(FILE *f) {
     }
 
     {
-        char zero = 0;
-        fwrite(&str_offset, sizeof str_offset, 1, f);
-        fwrite(&zero, sizeof zero, 1, f);
-    }
-
-    for (i = 0; i != size; ++i) {
-        char const *token = hash_map_key(tokens, i);
-        if (token)
-            fwrite(token, 1, strlen(token) + 1, f);
+        int size = vector_size(tokens_str);
+        fwrite(&size, sizeof size, 1, f);
+        fwrite(vector_at(tokens_str, 0), sizeof(char), size, f);
     }
 
     for (i = 0; i != size; ++i) {
         if (hash_map_key(tokens, i)) {
-            geoname_indices_t v = *((geoname_indices_t *) hash_map_value(tokens, i));
+            geoname_indices_t v = ((token_info_t *) hash_map_value(tokens, i))->indices;
             int size = vector_size(v);
 
             if (size > 1) {
