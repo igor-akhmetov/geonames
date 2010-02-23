@@ -4,6 +4,7 @@
 #include "mapped_geonames.h"
 #include "mapped_tokens.h"
 #include "log.h"
+#include "process_query.h"
 
 static int const MAX_RESULTS = 10;
 

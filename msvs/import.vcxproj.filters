@@ -11,6 +11,7 @@
     <ClCompile Include="..\src\tokens.c" />
     <ClCompile Include="..\src\util.c" />
     <ClCompile Include="..\src\vector.c" />
+    <ClCompile Include="..\src\process_query.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\admin_codes.h" />
@@ -23,5 +24,6 @@
     <ClInclude Include="..\src\tokens.h" />
     <ClInclude Include="..\src\util.h" />
     <ClInclude Include="..\src\vector.h" />
+    <ClInclude Include="..\src\process_query.h" />
   </ItemGroup>
 </Project>

@@ -72,10 +72,6 @@ void dump_geonames_text() {
     }
 }
 
-geoname_idx_t geoname_idx(geoname_indices_t v, int idx) {
-    return *(geoname_idx_t *) vector_at(v, idx);
-}
-
 void dump_geonames(FILE *f) {
     int i, offset = 0, num = geonames_num();
 

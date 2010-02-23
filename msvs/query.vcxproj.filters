@@ -1,31 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="..\src\admin_codes.c" />
-    <ClCompile Include="..\src\country_info.c" />
-    <ClCompile Include="..\src\geonames.c" />
-    <ClCompile Include="..\src\hash_map.c" />
     <ClCompile Include="..\src\log.c" />
     <ClCompile Include="..\src\mapped_geonames.c" />
     <ClCompile Include="..\src\mapped_tokens.c" />
     <ClCompile Include="..\src\query.c" />
-    <ClCompile Include="..\src\text_db.c" />
-    <ClCompile Include="..\src\tokens.c" />
     <ClCompile Include="..\src\util.c" />
     <ClCompile Include="..\src\vector.c" />
+    <ClCompile Include="..\src\process_query.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\admin_codes.h" />
-    <ClInclude Include="..\src\country_info.h" />
-    <ClInclude Include="..\src\geonames.h" />
-    <ClInclude Include="..\src\hash_map.h" />
     <ClInclude Include="..\src\log.h" />
     <ClInclude Include="..\src\mapped_geonames.h" />
     <ClInclude Include="..\src\mapped_tokens.h" />
     <ClInclude Include="..\src\standard.h" />
-    <ClInclude Include="..\src\text_db.h" />
-    <ClInclude Include="..\src\tokens.h" />
     <ClInclude Include="..\src\util.h" />
     <ClInclude Include="..\src\vector.h" />
+    <ClInclude Include="..\src\process_query.h" />
   </ItemGroup>
 </Project>

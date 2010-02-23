@@ -17,6 +17,7 @@
     <ClCompile Include="..\src\hash_map.c" />
     <ClCompile Include="..\src\import.c" />
     <ClCompile Include="..\src\log.c" />
+    <ClCompile Include="..\src\process_query.c" />
     <ClCompile Include="..\src\text_db.c" />
     <ClCompile Include="..\src\tokens.c" />
     <ClCompile Include="..\src\util.c" />
@@ -28,6 +29,7 @@
     <ClInclude Include="..\src\geonames.h" />
     <ClInclude Include="..\src\hash_map.h" />
     <ClInclude Include="..\src\log.h" />
+    <ClInclude Include="..\src\process_query.h" />
     <ClInclude Include="..\src\standard.h" />
     <ClInclude Include="..\src\text_db.h" />
     <ClInclude Include="..\src\tokens.h" />

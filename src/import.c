@@ -5,6 +5,7 @@
 #include "tokens.h"
 #include "util.h"
 #include "admin_codes.h"
+#include "process_query.h"
 
 static char const *COUNTRY_INFO_FILE    = "countryInfo.txt";
 static char const *GEONAMES_INFO_FILE   = "allCountries.txt";

@@ -19,8 +19,3 @@ int                 geonames_num();
 geoname_t const *   geoname(int idx);
 void                dump_geonames_text();
 void                dump_geonames(FILE *f);
-
-typedef int         geoname_idx_t;
-typedef vector_t    geoname_indices_t;
-
-geoname_idx_t       geoname_idx(geoname_indices_t v, int idx);
