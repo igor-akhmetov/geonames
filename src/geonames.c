@@ -43,7 +43,7 @@ void load_geonames(char const * filename) {
     tdb_close(db);
 }
 
-int __cdecl geoname_compare(void const *p, void const *q) {
+int geoname_compare(void const *p, void const *q) {
     geoname_t const *x = p;
     geoname_t const *y = q;
 

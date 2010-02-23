@@ -14,5 +14,5 @@ void        vector_resize(vector_t v, int size);
 void *      vector_set(vector_t v, int idx, void *data);
 void *      vector_push(vector_t v, void *data);
 
-typedef int (__cdecl *vector_compare_func)(const void *, const void *);
+typedef int (*vector_compare_func)(const void *, const void *);
 void        vector_sort(vector_t v, vector_compare_func func);

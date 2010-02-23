@@ -3,6 +3,7 @@
 #include "hash_map.h"
 #include "text_db.h"
 #include "country_info.h"
+#include "util.h"
 
 hash_map_t admin1_names;
 hash_map_t admin2_names;

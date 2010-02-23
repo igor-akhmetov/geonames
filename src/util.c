@@ -46,13 +46,13 @@ vector_t strsplit(char *str, char const *sep) {
 char * strlower(char *str) {
     char *p;
     for (p = str; p && *p; ++p)
-        *p = tolower(*p);
+        *p = tolower((int) *p);
     return str;
 }
 
 char * strtrim(char *str) {
     char *p = str + strlen(str) - 1;
-    while (p >= str && (*p == 10 || *p == 13 || isspace(*p)))
+    while (p >= str && (*p == 10 || *p == 13 || isspace((int) *p)))
         *p-- = 0;
     return str;
 }
@@ -88,6 +88,30 @@ void const * map_file_read(char const *filename) {
         error("can't map file");
 
     return res;
+}
+
+#else
+
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
+void const * map_file_read(char const *filename) {
+    void *addr;
+    struct stat sb;
+
+    int fd = open(filename, O_RDONLY);
+    if (fd == -1)
+        cerror("can't open %s", filename);
+
+    if (fstat(fd, &sb) == -1)
+        cerror("fstat");
+
+    addr = mmap(NULL, sb.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+    if (addr == MAP_FAILED)
+        cerror("mmap");
+
+    return addr;
 }
 
 #endif

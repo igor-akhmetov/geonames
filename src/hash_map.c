@@ -11,8 +11,6 @@ struct hash_map_impl {
     vector_t    entries;
 };
 
-typedef struct hash_map_impl * hash_map_t;
-
 int hash_map_size(hash_map_t m) {
     return m->nentries;
 }
@@ -95,7 +93,7 @@ static void increase_hash_size(hash_map_t m) {
 
     for (; i < cur_size; ++i) {
         char const *key = 0;
-        if (key = hash_map_key(m, i))
+        if ((key = hash_map_key(m, i)))
             hash_map_put(new_map, key, hash_map_value(m, i));
     }
 

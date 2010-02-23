@@ -28,7 +28,7 @@ int tdb_next_row(text_db_t db) {
     assert(db);
     assert(db->f);
 
-    while (line = fgets(db->buf, sizeof db->buf, db->f)) {
+    while ((line = fgets(db->buf, sizeof db->buf, db->f))) {
         char *field = line;        
         int first = strspn(line, " \t");
         

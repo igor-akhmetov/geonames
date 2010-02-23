@@ -7,6 +7,7 @@
 #endif
 
 #include <assert.h>
+#include <errno.h>
 #include <memory.h>
 #include <stdarg.h>
 #include <stdio.h>

@@ -49,4 +49,6 @@ int main(int argc, char *argv[]) {
     load_data(argv[1]);
     debug("Ready to serve\n");
     serve_queries();
+
+    return EXIT_SUCCESS;
 }

@@ -4,7 +4,7 @@ SRC=$(wildcard *.c)
 OBJ=$(patsubst %.c,%.o,$(SRC))
 IMPORT_OBJ=$(filter-out $(QUERY).o, $(OBJ))
 QUERY_OBJ=$(filter-out $(IMPORT).o, $(OBJ))
-CFLAGS=-Wall -ansi
+CFLAGS=-Wall
 
 all: $(IMPORT) $(QUERY)
 

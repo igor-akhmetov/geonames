@@ -9,7 +9,7 @@ typedef struct {
     char const  *alternate_names;
     char const  *admin1_code;
     char const  *admin2_code;
-    int         country_idx; //TODO
+    int         country_idx;
     int         population;
 } geoname_t;
 

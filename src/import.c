@@ -89,4 +89,6 @@ int main(int argc, char *argv[]) {
     process();
     dump_data(argv[1]);
     serve_queries();
+
+    return EXIT_SUCCESS;
 }
