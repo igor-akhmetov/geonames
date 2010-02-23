@@ -174,7 +174,7 @@ void dump_tokens(FILE *f) {
                 fwrite(&t, sizeof size, 1, f);
                 fwrite(vector_at(v, 0), sizeof(geoname_idx_t), size, f);
             } else 
-                fwrite(vector_at(v, 1), sizeof(geoname_idx_t), 1, f);
+                fwrite(vector_at(v, 0), sizeof(geoname_idx_t), 1, f);
         }
     }
 }
