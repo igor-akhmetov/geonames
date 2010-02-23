@@ -56,7 +56,10 @@ geoname_indices_t mapped_geonames_by_token(char const *token) {
             if (!strcmp(token, cur_key)) {
                 mapped_geoindices_t const * v = (mapped_geoindices_t const *)
                     ((char *) tokens.indices + tokens.tokens[i].indices_offset);
-                return vector_from_memory(sizeof(int), v->size, v->data);
+                if (v->size < 0)
+                    return vector_from_memory(sizeof(v->data[0]), ~v->size, v->data);
+                else
+                    return vector_from_memory(sizeof(v->size), 1, &v->size);
             }
         } else 
             break;

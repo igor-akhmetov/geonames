@@ -197,8 +197,8 @@ void dump_tokens(FILE *f) {
             fwrite(&str_offset, sizeof str_offset, 1, f);
             str_offset += strlen(token) + 1;
             
-            fwrite(&indices_offset, sizeof indices_offset, 1, f);
-            indices_offset += size * sizeof(geoname_idx_t) + sizeof(int);
+            fwrite(&indices_offset, sizeof indices_offset, 1, f);            
+            indices_offset += sizeof(int) + (size > 1 ? size * sizeof(geoname_idx_t) : 0);
         } else {
             int data[] = {0, 0};
             fwrite(&data, sizeof data, 1, f);
@@ -222,8 +222,12 @@ void dump_tokens(FILE *f) {
             geoname_indices_t v = *((geoname_indices_t *) hash_map_value(tokens, i));
             int size = vector_size(v);
 
-            fwrite(&size, sizeof size, 1, f);
-            fwrite(vector_at(v, 0), sizeof(geoname_idx_t), size, f);
+            if (size > 1) {
+                int t = ~size;                    
+                fwrite(&t, sizeof size, 1, f);
+                fwrite(vector_at(v, 0), sizeof(geoname_idx_t), size, f);
+            } else 
+                fwrite(vector_at(v, 1), sizeof(geoname_idx_t), 1, f);
         }
     }
 }
