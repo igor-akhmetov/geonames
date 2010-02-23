@@ -14,7 +14,9 @@ typedef struct {
 } admin2_names_t;
 
 enum {
+    ADMIN1_CODE_FIELD = 0,
     ADMIN1_NAME_FIELD = 1,
+    ADMIN2_CODE_FIELD = 0,
     ADMIN2_NAME1_FIELD = 1,
     ADMIN2_NAME2_FIELD = 2
 };
@@ -25,8 +27,8 @@ void load_admin1_codes(char const *filename) {
     admin1_names = hash_map_init(sizeof(char const *));
 
     while (tdb_next_row(db)) {        
-        char *name = xstrdup(tdb_field(db, 1));
-        hash_map_put(admin1_names, tdb_field(db, ADMIN1_NAME_FIELD), &name);
+        char *name = xstrdup(tdb_field(db, ADMIN1_NAME_FIELD));
+        hash_map_put(admin1_names, tdb_field(db, ADMIN1_CODE_FIELD), &name);
     }
 
     tdb_close(db);
@@ -43,7 +45,7 @@ void load_admin2_codes(char const *filename) {
         names.name1 = xstrdup(tdb_field(db, ADMIN2_NAME1_FIELD));
         names.name2 = xstrdup(tdb_field(db, ADMIN2_NAME2_FIELD));
 
-        hash_map_put(admin2_names, tdb_field(db, 0), &names);
+        hash_map_put(admin2_names, tdb_field(db, ADMIN1_CODE_FIELD), &names);
     }
 
     tdb_close(db);
