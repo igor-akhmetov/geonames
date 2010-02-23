@@ -46,13 +46,14 @@ vector_t strsplit(char *str, char const *sep) {
 char * strlower(char *str) {
     char *p;
     for (p = str; p && *p; ++p)
-        *p = tolower((int) *p);
+        if (*p < 128)
+            *p = tolower((int) *p);
     return str;
 }
 
 char * strtrim(char *str) {
     char *p = str + strlen(str) - 1;
-    while (p >= str && (*p == 10 || *p == 13 || isspace((int) *p)))
+    while (p >= str && (*p == 10 || *p == 13 || (*p < 128 && isspace((int) *p))))
         *p-- = 0;
     return str;
 }
