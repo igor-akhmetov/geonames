@@ -76,7 +76,7 @@ void const * map_file_read(char const *filename) {
     HANDLE file, mapping;
 
     file = CreateFileA(filename, GENERIC_READ, 0, 0, OPEN_EXISTING, 0, 0);
-    if (!file) 
+    if (file == INVALID_HANDLE_VALUE)
         error("can't open file %s", filename);
 
     mapping = CreateFileMapping(file, 0, PAGE_READONLY, 0, 0, NULL);
