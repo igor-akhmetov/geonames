@@ -1,6 +1,7 @@
 #include "standard.h"
 #include "process_query.h"
 #include "util.h"
+#include "log.h"
 
 geoname_idx_t geoname_idx(geoname_indices_t v, int idx) {
     return *(geoname_idx_t *) vector_at(v, idx);
@@ -57,4 +58,35 @@ end:
     free(lists);
 
     return res;
+}
+
+void run_interactive_loop(geonames_by_token_func geonames_func,
+                          int max_results,
+                          process_geoname_id_func process_func) {
+    char q[4096];
+
+    debug("Ready to serve\n");
+
+    for (;;) {
+        int i;
+        vector_t tokens;
+        geoname_indices_t geonames;
+
+        if (!fgets(q, sizeof q, stdin))
+            break;
+
+        strlower(strtrim(q));
+
+        if (!*q)
+            continue;
+
+        tokens = strsplit(q, " \t");
+        geonames = process_query(tokens, max_results, geonames_func);
+
+        for (i = 0; i != vector_size(geonames); ++i)
+            process_func(geoname_idx(geonames, i));
+
+        vector_free(tokens);
+        vector_free(geonames);
+    }
 }

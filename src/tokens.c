@@ -15,7 +15,7 @@ typedef struct {
 
 static vector_t tokens_str;
 
-static int add_token_text(char const *str) {
+static int add_token_text(char *str) {
     int i, len = strlen(str);
 
     for (i = 0; i <= len; ++i)
@@ -30,7 +30,7 @@ static void add_token(char *str, geoname_idx_t geo_idx) {
     int token_str_pos = -1;
 
     do {
-        token_info_t * info = hash_map_get(tokens, word);
+        token_info_t * info = (token_info_t *) hash_map_get(tokens, word);
         int size;
 
         if (!info) {

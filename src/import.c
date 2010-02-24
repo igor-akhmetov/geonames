@@ -50,36 +50,11 @@ static void dump_data(char const *filename) {
     debug("done\n");
 }
 
-static void serve_queries() {
-    char q[1024];        
-
-    for (;;) {
-        int i;
-        vector_t tokens;
-        geoname_indices_t geonames;
-
-        printf("Query: ");
-        if (!fgets(q, sizeof q, stdin))
-            break;
-
-        strlower(strtrim(q));
-
-        if (!*q)
-            continue;
-
-        tokens = strsplit(q, " \t");
-        geonames = process_query(tokens, 0, geonames_by_token);
-
-        for (i = 0; i != vector_size(geonames); ++i) {
-            geoname_t const *geo = geoname(geoname_idx(geonames, i));
-            country_info_t const *ci = country(geo->country_idx);
-            printf("%d. %d %s, %s, population %d\n", i + 1, geo->id, geo->name,
-                ci ? ci->name : "unknown country", geo->population);
-        }
-
-        vector_free(tokens);
-        vector_free(geonames);
-    }
+static void print_geoname_info(geoname_idx_t geoname_idx) {
+    geoname_t const *geo = geoname(geoname_idx);
+    country_info_t const *ci = country(geo->country_idx);
+    printf("%d %s, %s, population %d\n", geo->id, geo->name,
+           ci ? ci->name : "unknown country", geo->population);
 }
 
 int main(int argc, char *argv[]) {
@@ -89,7 +64,7 @@ int main(int argc, char *argv[]) {
     load_data();
     process();
     dump_data(argv[1]);
-    serve_queries();
+    run_interactive_loop(geonames_by_token, 0, print_geoname_info);
 
     return EXIT_SUCCESS;
 }
