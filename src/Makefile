@@ -22,3 +22,4 @@ depend:
 
 clean:
 	-rm $(IMPORT) $(QUERY) $(OBJ) 2>/dev/null
+

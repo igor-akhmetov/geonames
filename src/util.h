@@ -13,3 +13,4 @@ vector_t        strsplit(char *str, char const *sep);
 char *          strlower(char *str);
 char *          strtrim(char *str);
 unsigned        strhash(char const * key);
+
