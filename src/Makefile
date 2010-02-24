@@ -21,4 +21,4 @@ depend:
 	gcc -M $(SRC) >depend.mk
 
 clean:
-	-rm $(IMPORT) $(QUERY) $(OBJ)
+	-rm $(IMPORT) $(QUERY) $(OBJ) 2>/dev/null
