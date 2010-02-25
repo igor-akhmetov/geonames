@@ -32,8 +32,8 @@ static void process() {
     debug("done, %d geonames total\n", geonames_num());
 
     debug("building table of tokens...\n");
-    collect_tokens();
-    debug("done, %d tokens total\n", tokens_num());
+    process_tokens();
+    debug("done\n");
 }
 
 static void dump_data(char const *filename) {

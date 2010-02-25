@@ -7,13 +7,15 @@
 #include "admin_codes.h"
 
 static hash_map_t tokens;
-
-typedef struct {
-    int                 str_offset;
-    geoname_indices_t   indices;
-} token_info_t;
-
 static vector_t tokens_str;
+static vector_t str_offset;
+static vector_t geoname_indices;
+static vector_t last_geoname_idx;
+static vector_t token_offset;
+static int nindices;
+static FILE *tokens_tmp_file;
+
+static char const *TEMPFILENAME = "tempfile";
 
 static int add_token_text(char *str) {
     int i, len = strlen(str);
@@ -29,23 +31,27 @@ static void add_token(char *word, geoname_idx_t geo_idx) {
     int token_str_pos = -1;
 
     do {
-        token_info_t * info = (token_info_t *) hash_map_get(tokens, word);
-        int size;
+        int *pidx = (int *) hash_map_get(tokens, word);
 
-        if (!info) {
-            token_info_t new_info;
+        if (!pidx) {
+            int z = 0, inf = 1 << 30, idx = vector_size(str_offset);
+            pidx = (int *) hash_map_put(tokens, word, &idx);
 
             if (token_str_pos == -1)
                 token_str_pos = add_token_text(word);
 
-            new_info.str_offset = token_str_pos;
-            new_info.indices = vector_init(sizeof(geoname_idx_t));
-            info = (token_info_t *) hash_map_put(tokens, word, &new_info);
+            vector_push(str_offset, &token_str_pos);
+            vector_push(last_geoname_idx, &inf);
+            vector_push(token_offset, &z);
         }
-
-        size = vector_size(info->indices);
-        if (!size || geoname_idx(info->indices, size - 1) != geo_idx)
-            vector_push(info->indices, &geo_idx);
+        
+        if (*(int*)vector_at(last_geoname_idx, *pidx) > geo_idx) {
+            int nused = (*(int *) vector_at(token_offset, *pidx)) + 1;
+            vector_set(last_geoname_idx, *pidx, &geo_idx);
+            vector_set(token_offset, *pidx, &nused);
+            fwrite(pidx, sizeof(geoname_idx_t), 1, tokens_tmp_file);
+            ++nindices;
+        }
 
         word[--len] = 0;
         --token_str_pos;
@@ -86,20 +92,17 @@ static void add_tokens(char const *str, geoname_idx_t geo_idx) {
     free(token);
 }
 
-void collect_tokens() {
+static void collect_tokens() {
     int i;
-    char zero = 0;
-
-    tokens = hash_map_init(sizeof(token_info_t));
-    tokens_str = vector_init(sizeof(char));
-    vector_push(tokens_str, &zero);
+    tokens_tmp_file = fopen(TEMPFILENAME, "wb");
     
-    for (i = 0; i != geonames_num(); ++i) {
+    for (i = geonames_num() - 1; i >= 0; --i) {
         geoname_t const *g = geoname(i);
         country_info_t const *ci = country(g->country_idx);
 
         if (!(i % 1000))
-            debug("processing geoname %d, %d tokens so far\n", i, hash_map_size(tokens));
+            debug("processing geoname %d, %d tokens so far\n",
+                  geonames_num() - i, vector_size(str_offset));
 
         add_tokens(g->name, i);
         add_tokens(g->alternate_names, i);
@@ -111,13 +114,66 @@ void collect_tokens() {
             add_tokens(ci->name, i);
             add_tokens(ci->fips, i);
             add_tokens(ci->iso, i);
-            add_tokens(ci->iso3, i);            
+            add_tokens(ci->iso3, i);
+        }
+        {
+            int bound = -1;
+            fwrite(&bound, sizeof bound, 1, tokens_tmp_file);
         }
     }
+
+    fclose(tokens_tmp_file);
+    vector_free(last_geoname_idx);
 }
 
-int tokens_num() {
-    return hash_map_size(tokens);
+static void calc_offsets() {
+    int i, ntokens = vector_size(token_offset);
+
+    for (i = 1; i < ntokens; ++i) {
+        int sum = *(int *) vector_at(token_offset, i) +
+                  *(int *) vector_at(token_offset, i - 1);
+        vector_set(token_offset, i, &sum);
+    }
+
+    vector_push(token_offset, &nindices);
+}
+
+static void fill_indices() {
+    int i;
+    geoname_idx_t cur_geoname = geonames_num() - 1;
+
+    geoname_indices = vector_init(sizeof(geoname_idx_t));
+    vector_resize(geoname_indices, nindices);    
+    
+    tokens_tmp_file = fopen(TEMPFILENAME, "rb");
+    
+    for (i = 0; i < nindices + geonames_num(); ++i) {
+        int token;
+        fread(&token, sizeof token, 1, tokens_tmp_file);
+        if (token == -1)
+            --cur_geoname;
+        else {
+            int pos = *(int *) vector_at(token_offset, token);
+            --pos;
+            vector_set(geoname_indices, pos, &cur_geoname);
+            vector_set(token_offset, token, &pos);
+        }
+    }
+
+    fclose(tokens_tmp_file);
+}
+
+void process_tokens() {
+    tokens = hash_map_init(sizeof(int));
+    tokens_str = vector_init(sizeof(char));
+    str_offset = vector_init(sizeof(int));
+    last_geoname_idx = vector_init(sizeof(int));
+    token_offset = vector_init(sizeof(int));
+
+    collect_tokens();
+    debug("%d tokens, %d indices\n", vector_size(token_offset), nindices);
+    calc_offsets();
+    fill_indices();    
 }
 
 int has_token(char const *token) {
@@ -125,51 +181,54 @@ int has_token(char const *token) {
 }
 
 geoname_indices_t geonames_by_token(char const *token) {
-    if (!has_token(token))
+    int *pidx = (int *) hash_map_get(tokens, token);
+    if (!pidx)
         return 0;
 
-    return ((token_info_t *) hash_map_get(tokens, token))->indices;
+    {
+        int cur_offset = *(int *) vector_at(token_offset, *pidx);
+        int next_offset = *(int *) vector_at(token_offset, *pidx + 1);
+
+        return vector_from_memory(sizeof(geoname_idx_t),
+                                  next_offset - cur_offset,
+                                  vector_at(geoname_indices, cur_offset));                      
+    }
 }
 
-void dump_tokens(FILE *f) {
+static void dump_hashmap(FILE *f) {
     int i, size = hash_map_capacity(tokens);
-    int indices_offset = 0;
 
     fwrite(&size, sizeof size, 1, f);
 
     for (i = 0; i != size; ++i) {
         char const *token = hash_map_key(tokens, i);
 
-        if (token) {
-            token_info_t const * info = (token_info_t const *) hash_map_get(tokens, token);
-            int size = vector_size(info->indices);
-
-            fwrite(&info->str_offset, sizeof info->str_offset, 1, f);
-            fwrite(&indices_offset, sizeof indices_offset, 1, f);
-            indices_offset += sizeof(int) + (size > 1 ? size * sizeof(geoname_idx_t) : 0);
-        } else {
-            int data[] = {0, 0};
-            fwrite(&data, sizeof data, 1, f);
+        if (token)
+            fwrite(hash_map_value(tokens, i), sizeof(int), 1, f);
+        else {
+            int neg = -1;
+            fwrite(&neg, sizeof neg, 1, f);
         }               
     }
+}
 
-    {
-        int size = vector_size(tokens_str);
-        fwrite(&size, sizeof size, 1, f);
-        fwrite(vector_at(tokens_str, 0), sizeof(char), size, f);
-    }
+static void dump_tokens_data(FILE *f) {
+    int size, ntokens = vector_size(str_offset);
 
-    for (i = 0; i != size; ++i) {
-        if (hash_map_key(tokens, i)) {
-            geoname_indices_t v = ((token_info_t *) hash_map_value(tokens, i))->indices;
-            int size = vector_size(v);
+    fwrite(&ntokens, sizeof ntokens, 1, f);
+    fwrite(vector_at(str_offset, 0), sizeof(int), ntokens + 1, f);
+    fwrite(vector_at(token_offset, 0), sizeof(int), ntokens + 1, f);            
+   
+    size = vector_size(tokens_str);
+    fwrite(&size, sizeof size, 1, f);
+    fwrite(vector_at(tokens_str, 0), sizeof(char), size, f);
 
-            if (size > 1) {
-                int t = ~size;                    
-                fwrite(&t, sizeof size, 1, f);
-                fwrite(vector_at(v, 0), sizeof(geoname_idx_t), size, f);
-            } else 
-                fwrite(vector_at(v, 0), sizeof(geoname_idx_t), 1, f);
-        }
-    }
+    size = vector_size(geoname_indices);
+    fwrite(&size, sizeof size, 1, f);
+    fwrite(vector_at(geoname_indices, 0), sizeof(geoname_idx_t), nindices, f);
+}
+
+void dump_tokens(FILE *f) {
+    dump_hashmap(f);
+    dump_tokens_data(f);
 }
