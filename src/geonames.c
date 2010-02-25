@@ -24,6 +24,8 @@ void load_geonames(char const * filename) {
     
     while (tdb_next_row(db)) {
         geoname_t g = {0};        
+        char const *admin1_code;
+        char const *admin2_code;
 
         char const * cat = tdb_field(db, 6);
         if (strcmp(cat, "P"))
@@ -33,9 +35,14 @@ void load_geonames(char const * filename) {
         g.name              = xstrdup(tdb_field(db, NAME_FIELD));
         g.alternate_names   = xstrdup(tdb_field(db, ALTERNATE_NAMES_FIELD));
         g.country_idx       = country_idx_by_iso(tdb_field(db, COUNTRY_FIELD));
-        g.admin1_code       = xstrdup(tdb_field(db, ADMIN1_CODE_FIELD));
-        g.admin2_code       = xstrdup(tdb_field(db, ADMIN2_CODE_FIELD));
         g.population        = atoi(tdb_field(db, POPULATION_FIELD));
+
+        if (g.country_idx != -1) {
+            admin1_code         = tdb_field(db, ADMIN1_CODE_FIELD);
+            admin2_code         = tdb_field(db, ADMIN2_CODE_FIELD);
+
+            get_admin_names(g.country_idx, admin1_code, admin2_code, &g.admin_names);
+        }
 
         vector_push(geonames, &g);
     }

@@ -24,8 +24,7 @@ static int add_token_text(char *str) {
     return vector_size(tokens_str) - 2;
 }
 
-static void add_token(char *str, geoname_idx_t geo_idx) {
-    char *word = xstrdup(str);
+static void add_token(char *word, geoname_idx_t geo_idx) {
     int len = strlen(word);
     int token_str_pos = -1;
 
@@ -37,7 +36,7 @@ static void add_token(char *str, geoname_idx_t geo_idx) {
             token_info_t new_info;
 
             if (token_str_pos == -1)
-                token_str_pos = add_token_text(str);
+                token_str_pos = add_token_text(word);
 
             new_info.str_offset = token_str_pos;
             new_info.indices = vector_init(sizeof(geoname_idx_t));
@@ -51,8 +50,6 @@ static void add_token(char *str, geoname_idx_t geo_idx) {
         word[--len] = 0;
         --token_str_pos;
     } while (len);
-
-    free(word);
 }
 
 static void add_token_with_dashes(char *word, geoname_idx_t geo_idx) {
@@ -71,7 +68,7 @@ static void add_token_with_dashes(char *word, geoname_idx_t geo_idx) {
     vector_free(parts);
 }
 
-static void add_token_with_spaces(char const *str, geoname_idx_t geo_idx) {
+static void add_tokens(char const *str, geoname_idx_t geo_idx) {
     int j;
     char *token;
     vector_t words;
@@ -80,28 +77,10 @@ static void add_token_with_spaces(char const *str, geoname_idx_t geo_idx) {
         return;
 
     token = strlower(xstrdup(str));
-    words = strsplit(token, " \t");
+    words = strsplit(token, " \t,");
 
     for (j = 0; j != vector_size(words); ++j)
         add_token_with_dashes(*(char **)vector_at(words, j), geo_idx);
-
-    vector_free(words);
-    free(token);
-}
-
-static void add_token_with_commas(char const *str, geoname_idx_t geo_idx) {
-    int j;
-    char *token; 
-    vector_t words;
-
-    if (!str)
-        return;
-
-    token = strlower(xstrdup(str));
-    words = strsplit(token, ",");
-
-    for (j = 0; j != vector_size(words); ++j)
-        add_token_with_spaces(*(char **)vector_at(words, j), geo_idx);
 
     vector_free(words);
     free(token);
@@ -122,21 +101,17 @@ void collect_tokens() {
         if (!(i % 1000))
             debug("processing geoname %d, %d tokens so far\n", i, hash_map_size(tokens));
 
-        add_token_with_spaces(g->name, i);
-        add_token_with_commas(g->alternate_names, i);
+        add_tokens(g->name, i);
+        add_tokens(g->alternate_names, i);
+        add_tokens(g->admin_names.admin1_name, i);
+        add_tokens(g->admin_names.admin2_name1, i);
+        add_tokens(g->admin_names.admin2_name2, i);
 
         if (ci) {
-            admin_names_t admin_names;
-
-            add_token_with_spaces(ci->name, i);
-            add_token_with_spaces(ci->fips, i);
-            add_token_with_spaces(ci->iso, i);
-            add_token_with_spaces(ci->iso3, i);
-            
-            get_admin_names(g->country_idx, g->admin1_code, g->admin2_code, &admin_names);
-            add_token_with_spaces(admin_names.admin1_name, i);
-            add_token_with_spaces(admin_names.admin2_name1, i);
-            add_token_with_spaces(admin_names.admin2_name2, i);
+            add_tokens(ci->name, i);
+            add_tokens(ci->fips, i);
+            add_tokens(ci->iso, i);
+            add_tokens(ci->iso3, i);            
         }
     }
 }

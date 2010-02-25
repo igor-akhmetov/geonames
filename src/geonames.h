@@ -2,15 +2,15 @@
 
 #include "vector.h"
 #include "country_info.h"
+#include "admin_codes.h"
 
 typedef struct {
-    int         id;    
-    char const  *name;
-    char const  *alternate_names;
-    char const  *admin1_code;
-    char const  *admin2_code;
-    int         country_idx;
-    int         population;
+    int             id;
+    char const      *name;
+    char const      *alternate_names;
+    int             country_idx;
+    int             population;
+    admin_names_t   admin_names;
 } geoname_t;
 
 void                load_geonames(char const *filename);
