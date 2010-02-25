@@ -65,7 +65,7 @@ void vector_resize(vector_t v, int new_size) {
 }
 
 void *vector_set(vector_t v, int idx, void *data) {
-    return memcpy(vector_at(v, idx), data, v->elem_size);   
+    return memcpy(vector_at(v, idx), data, v->elem_size);
 }
 
 void *vector_push(vector_t v, void *data) {
@@ -75,11 +75,11 @@ void *vector_push(vector_t v, void *data) {
         if (!v->data)
             vector_reserve(v, VECTOR_INITIAL_SIZE);
         else
-            vector_reserve(v, v->capacity * 2);
+            vector_reserve(v, v->capacity * 1.5);
     }
 
     ++v->size;
-    return memcpy(vector_at(v, v->size - 1), data, v->elem_size);   
+    return memcpy(vector_at(v, v->size - 1), data, v->elem_size);
 }
 
 void vector_sort(vector_t v, vector_compare_func func) {
