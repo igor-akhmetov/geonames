@@ -1,6 +1,7 @@
 #include "standard.h"
 #include "mapped_tokens.h"
 #include "util.h"
+#include "log.h"
 
 #pragma pack(push, 1)
 
@@ -25,29 +26,37 @@ void init_mapped_tokens(void const *p) {
 
     tokens.map_size = *(int *) ptr;
     ptr += sizeof tokens.map_size;
+    debug("%d entries in token map\n", tokens.map_size);
 
     tokens.token_idx = (int *) ptr;
     ptr += sizeof(int) * tokens.map_size;
+    debug("%dMB size of token map\n", (tokens.map_size * sizeof(int)) >> 20);
 
     tokens.ntokens = *(int *) ptr;
     ptr += sizeof tokens.ntokens;
+    debug("%d tokens\n", tokens.ntokens);
 
     tokens.str_offset = (int const *) ptr;
     ptr += sizeof(int) * (tokens.ntokens + 1);
+    debug("%dMB for string offsets\n", (sizeof(int) * (tokens.ntokens + 1)) >> 20);
 
     tokens.indices_offset = (int const *) ptr;
     ptr += sizeof(int) * (tokens.ntokens + 1);
+    debug("%dMB for indices offsets\n", (sizeof(int) * (tokens.ntokens + 1)) >> 20);
 
     tokens.names_len = *(int *) ptr;
     ptr += sizeof tokens.names_len;
 
     tokens.names = (char const *) ptr;
     ptr += tokens.names_len;
+    debug("%dMB for strings\n", tokens.names_len >> 20);
 
     tokens.indices_len = *(int *) ptr;
     ptr += sizeof tokens.indices_len;
+    debug("%d indices\n", tokens.indices_len);
 
     tokens.indices = (int *) ptr;
+    debug("%dMB for indices data\n", (sizeof(int) * tokens.indices_len) >> 20);
 }
 
 geoname_indices_t mapped_geonames_by_token(char const *token) {

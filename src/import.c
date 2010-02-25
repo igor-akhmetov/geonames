@@ -12,6 +12,32 @@ static char const *GEONAMES_INFO_FILE   = "allCountries.txt";
 static char const *ADMIN1_CODES_FILE    = "admin1Codes.txt";
 static char const *ADMIN2_CODES_FILE    = "admin2Codes.txt";
 
+static char const *dump_filename;
+static int run_query_loop;
+
+static void parse_args(int argc, char *argv[]) {
+    char const *program_name = argv[0];
+
+    set_program_name(program_name);
+    --argc; ++argv;
+
+    while (argc) {
+        if (!strcmp(argv[0], "-v"))
+            set_verbose(1);
+        else if (!strcmp(argv[0], "-q"))
+            run_query_loop = 1;
+        else
+            break;
+
+        --argc; ++argv;
+    }
+
+    if (argc != 1)
+        usage("[-v] [-q] [data file]");
+
+    dump_filename = argv[0];
+}
+
 static void load_data() {
     debug("reading country info...\n");
     load_countries(COUNTRY_INFO_FILE);
@@ -58,13 +84,13 @@ static void print_geoname_info(geoname_idx_t geoname_idx) {
 }
 
 int main(int argc, char *argv[]) {
-    if (argc != 2)
-        error("usage: %s [data file]\n", argv[0]);
-
+    parse_args(argc, argv);
     load_data();
     process();
-    dump_data(argv[1]);
-    run_interactive_loop(geonames_by_token, 0, print_geoname_info);
+    dump_data(dump_filename);
+
+    if (run_query_loop)
+        run_interactive_loop(geonames_by_token, 0, print_geoname_info);
 
     return EXIT_SUCCESS;
 }

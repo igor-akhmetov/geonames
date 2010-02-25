@@ -8,6 +8,29 @@
 
 static int const MAX_RESULTS = 10;
 
+static char const *dump_filename;
+
+static void parse_args(int argc, char *argv[]) {
+    char const *program_name = argv[0];
+
+    set_program_name(program_name);
+    --argc; ++argv;
+
+    while (argc) {
+        if (!strcmp(argv[0], "-v"))
+            set_verbose(1);
+        else
+            break;
+
+        --argc; ++argv;
+    }
+
+    if (argc != 1)
+        usage("[-v] [data file]");
+
+    dump_filename = argv[0];
+}
+
 static void load_data(char const *filename) {
     void const *data = map_file_read(filename);
     data = init_mapped_geonames(data);
@@ -19,11 +42,8 @@ static void print_geoname_info(geoname_idx_t idx) {
 }
 
 int main(int argc, char *argv[]) {    
-    if (argc != 2)
-        error("usage: %s [data file]\n", argv[0]);
-
-    load_data(argv[1]);
+    parse_args(argc, argv);
+    load_data(dump_filename);
     run_interactive_loop(mapped_geonames_by_token, MAX_RESULTS, print_geoname_info);
-
     return EXIT_SUCCESS;
 }

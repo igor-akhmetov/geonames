@@ -1,5 +1,6 @@
 #include "standard.h"
 #include "mapped_geonames.h"
+#include "log.h"
 
 #pragma pack(push, 1)
 
@@ -24,15 +25,18 @@ void const * init_mapped_geonames(void const *p) {
 
     geonames.num = *(int *) ptr;
     ptr += sizeof geonames.num;
+    debug("%d geonames\n", geonames.num);
 
     geonames.geonames = (mapped_geoname_t const *) ptr;
     ptr += sizeof(mapped_geoname_t) * geonames.num;
+    debug("%dMB for geoname data\n", (sizeof(mapped_geoname_t) * geonames.num) >> 20);
 
     geonames.names_len = *(int *) ptr;
     ptr += sizeof geonames.names_len;
 
     geonames.names = (char const *) ptr;
     ptr += geonames.names_len;
+    debug("%dMB for geoname strings\n", geonames.names_len >> 20);
 
     return ptr;
 }
