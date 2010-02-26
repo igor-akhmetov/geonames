@@ -11,6 +11,7 @@ typedef struct {
     int                     ntokens;
     int const *             str_offset;
     int const *             indices_offset;
+    int const *             indices_num;
     int                     names_len;
     char const *            names;
     int                     indices_len;
@@ -37,12 +38,16 @@ void init_mapped_tokens(void const *p) {
     debug("%d tokens\n", tokens.ntokens);
 
     tokens.str_offset = (int const *) ptr;
-    ptr += sizeof(int) * (tokens.ntokens + 1);
-    debug("%dMB for string offsets\n", (sizeof(int) * (tokens.ntokens + 1)) >> 20);
+    ptr += sizeof(int) * tokens.ntokens;
+    debug("%dMB for string offsets\n", (sizeof(int) * tokens.ntokens) >> 20);
 
     tokens.indices_offset = (int const *) ptr;
-    ptr += sizeof(int) * (tokens.ntokens + 1);
-    debug("%dMB for indices offsets\n", (sizeof(int) * (tokens.ntokens + 1)) >> 20);
+    ptr += sizeof(int) * tokens.ntokens;
+    debug("%dMB for indices offsets\n", (sizeof(int) * tokens.ntokens) >> 20);
+
+    tokens.indices_num = (int const *) ptr;
+    ptr += sizeof(int) * tokens.ntokens;
+    debug("%dMB for number of indices per token\n", (sizeof(int) * tokens.ntokens) >> 20);
 
     tokens.names_len = *(int *) ptr;
     ptr += sizeof tokens.names_len;
@@ -77,9 +82,8 @@ geoname_indices_t mapped_geonames_by_token(char const *token) {
             ++first;
 
             if (!strncmp(token, first, last - first + 1)) {
-                return vector_from_memory(sizeof(int),
-                                          tokens.indices_offset[token_idx + 1] - tokens.indices_offset[token_idx],
-                                          tokens.indices + tokens.indices_offset[token_idx]);   
+                return vector_from_memory(sizeof(int), tokens.indices_num[token_idx], 
+                                          tokens.indices + tokens.indices_offset[token_idx]);
             }
         } else 
             break;
