@@ -11,9 +11,7 @@ static int const MAX_RESULTS = 10;
 static char const *dump_filename;
 
 static void parse_args(int argc, char *argv[]) {
-    char const *program_name = argv[0];
-
-    set_program_name(program_name);
+    set_program_name(argv[0]);
     --argc; ++argv;
 
     while (argc) {

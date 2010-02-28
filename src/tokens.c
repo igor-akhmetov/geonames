@@ -59,7 +59,7 @@ static void add_token(char *word, geoname_idx_t geo_idx) {
 
 static void add_token_with_dashes(char *word, geoname_idx_t geo_idx) {
     vector_t parts;
-    int i;
+    int i, n;
 
     if (!word)
         return;
@@ -67,14 +67,14 @@ static void add_token_with_dashes(char *word, geoname_idx_t geo_idx) {
     add_token(word, geo_idx);
     parts = strsplit(word, "-");
 
-    for (i = 0; i != vector_size(parts); ++i)
+    for (i = 0, n = vector_size(parts); i != n; ++i)
         add_token(*(char **) vector_at(parts, i), geo_idx);
 
     vector_free(parts);
 }
 
 static void add_tokens(char const *str, geoname_idx_t geo_idx) {
-    int j;
+    int j, n;
     char *token;
     vector_t words;
 
@@ -84,7 +84,7 @@ static void add_tokens(char const *str, geoname_idx_t geo_idx) {
     token = strlower(xstrdup(str));
     words = strsplit(token, " \t,");
 
-    for (j = 0; j != vector_size(words); ++j)
+    for (j = 0, n = vector_size(words); j != vector_size(words); ++j)
         add_token_with_dashes(*(char **)vector_at(words, j), geo_idx);
 
     vector_free(words);
@@ -180,6 +180,8 @@ void compress_indices() {
     int i, hash_size = (ntokens << 1) + 1;
     int *hash_to_token = xmalloc(hash_size * sizeof(int));
     memset(hash_to_token, -1, hash_size * sizeof(int));
+
+    debug("compressing indices...\n");
 
     nindices = 0;
     for (i = 0; i < ntokens; ++i) {
