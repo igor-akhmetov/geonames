@@ -60,11 +60,15 @@ static void add_token(char *word, geoname_idx_t geo_idx) {
 static void add_token_with_dashes(char *word, geoname_idx_t geo_idx) {
     vector_t parts;
     int i, n;
+    char *copy;
 
     if (!word)
         return;
 
-    add_token(word, geo_idx);
+    copy = xstrdup(word);
+    add_token(copy, geo_idx);
+    free(copy);
+
     parts = strsplit(word, "-");
 
     for (i = 0, n = vector_size(parts); i != n; ++i)
