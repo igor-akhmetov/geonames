@@ -50,7 +50,7 @@ static void load_data() {
     debug("done, %d geonames total\n", geonames_num());
 }
 
-static void process() {    
+static void process() {
     debug("sorting geonames by population...\n");
     sort_geonames();
     debug("done, %d geonames total\n", geonames_num());
@@ -77,8 +77,20 @@ static void dump_data(char const *filename) {
 static void print_geoname_info(geoname_idx_t geoname_idx) {
     geoname_t const *geo = geoname(geoname_idx);
     country_info_t const *ci = country(geo->country_idx);
-    printf("%d %s, %s, population %d\n", geo->id, geo->name,
-           ci ? ci->name : "unknown country", geo->population);
+    printf("%d %s\n"
+           "\tCountry: %s %s %s %s\n"
+           "\tPopulation %d\n"
+           "\tAlternate names: %s\n"
+           "\tAdmin names: %s %s %s\n",
+           geo->id, geo->name,
+           ci ? ci->name : "unknown country",
+           ci ? ci->iso : "", ci ? ci->iso3 : "", ci ? ci->fips : "",
+           geo->population,
+           geo->alternate_names ? geo->alternate_names : "",
+           geo->admin_names.admin1_name ? geo->admin_names.admin1_name : "",
+           geo->admin_names.admin2_name1 ? geo->admin_names.admin2_name1 : "",
+           geo->admin_names.admin2_name2 ? geo->admin_names.admin2_name2 : ""
+        );
 }
 
 int main(int argc, char *argv[]) {
