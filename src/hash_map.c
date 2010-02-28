@@ -50,7 +50,7 @@ void hash_map_free(hash_map_t m) {
 
 void * hash_map_get(hash_map_t m, char const *key)
 {
-    int start_pos = 0, i = 0, j = 0, size = 0;
+    int start_pos = 0, i = 0, j = 0, mask = 0;
 
     assert(m);
     assert(key);
@@ -58,19 +58,18 @@ void * hash_map_get(hash_map_t m, char const *key)
     if (!m->nentries)
         return 0;
 
-    size = vector_size(m->keys);
-    start_pos = strhash(key) % size;
+    mask = vector_size(m->keys) - 1;
+    start_pos = strhash(key) & mask;
 
     for (i = start_pos;;) {
         char const *cur_key = hash_map_key(m, i);
         if (cur_key) {
             if (!strcmp(key, cur_key))
                 return hash_map_value(m, i);
-        } else 
+        } else
             break;
 
-        i = (i + (j << 1) + 1) % size;
-        ++j;
+        i = (i + (j++ << 1) + 1) & mask;
         if (i == start_pos)
             break;
     }
@@ -86,7 +85,10 @@ static void increase_hash_size(hash_map_t m) {
     assert(m);
 
     cur_size = vector_size(m->keys);
-    new_size = cur_size * 2 + 1;
+    if (!cur_size)
+        new_size = 4;
+    else
+        new_size = cur_size << 1;
 
     vector_resize(new_map->keys, new_size);
     vector_resize(new_map->entries, new_size);
@@ -105,7 +107,7 @@ static void increase_hash_size(hash_map_t m) {
 
 void * hash_map_put(hash_map_t m, char const *key, void *data)
 {
-    int start_pos = 0, i = 0, j = 0, size = 0;
+    int start_pos = 0, i = 0, j = 0, mask = 0;
 
     assert(m);
     assert(key);
@@ -113,9 +115,9 @@ void * hash_map_put(hash_map_t m, char const *key, void *data)
     if ((m->nentries << 1) >= vector_size(m->keys))
         increase_hash_size(m);
 
-    size = vector_size(m->keys);
-    start_pos = strhash(key) % size;
-    
+    mask = vector_size(m->keys) - 1;
+    start_pos = strhash(key) & mask;
+
     for (i = start_pos;;) {
         if (!hash_map_key(m, i)) {
             char * key_copy = xstrdup(key);
@@ -124,8 +126,7 @@ void * hash_map_put(hash_map_t m, char const *key, void *data)
             return vector_set(m->entries, i, data);
         }
 
-        i = (i + (j << 1) + 1) % size;
-        ++j;
+        i = (i + (j++ << 1) + 1) & mask;
         if (i == start_pos)
             error("hash wraparound");
     }

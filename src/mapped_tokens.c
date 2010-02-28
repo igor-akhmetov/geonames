@@ -65,10 +65,10 @@ void init_mapped_tokens(void const *p) {
 }
 
 geoname_indices_t mapped_geonames_by_token(char const *token) {
-    int start_pos = 0, i = 0, j = 0, size = 0;
+    int start_pos = 0, i = 0, j = 0, mask = 0;
 
-    size = tokens.map_size;
-    start_pos = strhash(token) % size;
+    mask = tokens.map_size - 1;
+    start_pos = strhash(token) & mask;
 
     for (i = start_pos;;) {
         int token_idx = tokens.token_idx[i];
@@ -82,14 +82,13 @@ geoname_indices_t mapped_geonames_by_token(char const *token) {
             ++first;
 
             if (!strncmp(token, first, last - first + 1)) {
-                return vector_from_memory(sizeof(int), tokens.indices_num[token_idx], 
+                return vector_from_memory(sizeof(int), tokens.indices_num[token_idx],
                                           tokens.indices + tokens.indices_offset[token_idx]);
             }
-        } else 
+        } else
             break;
 
-        i = (i + (j << 1) + 1) % size;
-        ++j;
+        i = (i + (j++ << 1) + 1) & mask;
         if (i == start_pos)
             break;
     }
