@@ -5,28 +5,28 @@
 
 void * xmalloc(size_t size) {
     void *p = malloc(size);
-    if (!p)        
+    if (!p)
         cerror("malloc");
     return p;
 }
 
 void * xcalloc(size_t size) {
     void *p = calloc(1, size);
-    if (!p)        
+    if (!p)
         cerror("calloc");
     return p;
 }
 
 void * xrealloc(void *ptr, size_t size) {
     void *p = realloc(ptr, size);
-    if (!p)        
+    if (!p)
         cerror("realloc");
     return p;
 }
 
 char * xstrdup(char const *src) {
     char *p = strdup(src);
-    if (!p)        
+    if (!p)
         cerror("strdup");
     return p;
 }
@@ -53,8 +53,7 @@ char * strlower(char *str) {
 
 char * strtrim(char *str) {
     char *p = str + strlen(str) - 1;
-    while (p >= str &&
-           (*p == 10 || *p == 13 || (*p > 0 && isspace((int) *p))))
+    while (p >= str && (*p == 10 || *p == 13))
         *p-- = 0;
     return str;
 }

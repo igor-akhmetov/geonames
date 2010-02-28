@@ -29,11 +29,13 @@ int tdb_next_row(text_db_t db) {
     assert(db->f);
 
     while ((line = fgets(db->buf, sizeof db->buf, db->f))) {
-        char *field = line;        
+        char *field = line;
         int first = strspn(line, " \t");
-        
+
         if (first == strlen(line) || line[first] == '#')
-            continue;        
+            continue;
+
+        strtrim(line);
 
         for (db->nfields = 0; db->nfields < MAX_FIELDS_NUM;) {
             char * next_field = field;
@@ -47,7 +49,7 @@ int tdb_next_row(text_db_t db) {
             *next_field = 0;
             field = next_field + 1;
         }
-        
+
         return 1;
     }
 
@@ -68,7 +70,7 @@ void tdb_close(text_db_t db)
 {
     assert(db);
     assert(db->f);
-    
+
     if (ferror(db->f))
         cerror("can't read %s", db->filename);
 
