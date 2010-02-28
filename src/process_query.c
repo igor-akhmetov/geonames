@@ -51,7 +51,7 @@ geoname_indices_t process_query(vector_t tokens, int max_results, geonames_by_to
             ++pos[idx];
         }
     }
-    
+
 end:
     free(pos);
     free(sizes);
@@ -77,14 +77,18 @@ void run_interactive_loop(geonames_by_token_func geonames_func,
 
         strlower(strtrim(q));
 
-        if (!*q)
+        if (!*q) {
+            puts("");
             continue;
+        }
 
         tokens = strsplit(q, " \t");
         geonames = process_query(tokens, max_results, geonames_func);
 
         for (i = 0; i != vector_size(geonames); ++i)
             process_func(geoname_idx(geonames, i));
+
+        puts("");
 
         vector_free(tokens);
         vector_free(geonames);
