@@ -22,6 +22,7 @@ static geoname_indices_t process_query(vector_t tokens, int max_results,
     /* Current index in the intersection algorithm in each of the lists. */
     int                 *pos   = xmalloc(ntokens * sizeof(int));
 
+    geoname_idx_t idx;
     geoname_indices_t res = vector_init(sizeof(geoname_idx_t));
 
     /* Get geoname indices for each token. */
@@ -36,29 +37,26 @@ static geoname_indices_t process_query(vector_t tokens, int max_results,
             goto end;
     }
 
+    idx = geoname_idx(lists[0], pos[0]);
+
     /* Find intersection of the results. */
     for (;;) {
-        int idx = 0;
+        geoname_idx_t prev = idx;
+
         for (i = 0; i < ntokens; ++i) {
+            while (pos[i] < sizes[i] &&
+                   geoname_idx(lists[i], pos[i]) < idx)
+                ++pos[i];
             if (pos[i] == sizes[i])
                 goto end;
-            if (geoname_idx(lists[i], pos[i]) < geoname_idx(lists[idx], pos[idx]))
-                idx = i;
+            idx = geoname_idx(lists[i], pos[i]);
         }
 
-        for (i = 0; i < ntokens; ++i) {
-            if (geoname_idx(lists[i], pos[i]) != geoname_idx(lists[idx], pos[idx]))
-                break;
-        }
-
-        if (i == ntokens) {
-            vector_push(res, vector_at(lists[idx], pos[idx]));
+        if (prev == idx) {
+            vector_push(res, &idx);
             if (max_results == vector_size(res))
                 goto end;
-            for (i = 0; i < ntokens; ++i)
-                ++pos[i];
-        } else {
-            ++pos[idx];
+            ++idx;
         }
     }
 

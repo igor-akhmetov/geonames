@@ -71,7 +71,7 @@ static void process() {
 }
 
 static void dump_data(char const *filename) {
-    FILE *f= fopen("dump", "wb");
+    FILE *f = fopen(filename, "wb");
     if (!f)
         cerror("can't open file %s for writing", filename);
 
