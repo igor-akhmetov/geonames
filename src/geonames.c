@@ -50,7 +50,7 @@ void load_geonames(char const * filename) {
     tdb_close(db);
 }
 
-static int geoname_compare(void const *p, void const *q) {
+static int geoname_compare_by_population(void const *p, void const *q) {
     geoname_t const *x = p;
     geoname_t const *y = q;
 
@@ -58,7 +58,7 @@ static int geoname_compare(void const *p, void const *q) {
 }
 
 void sort_geonames_by_population() {
-    vector_sort(geonames, geoname_compare);
+    vector_sort(geonames, geoname_compare_by_population);
 }
 
 int geonames_num() {

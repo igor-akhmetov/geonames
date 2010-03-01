@@ -6,8 +6,8 @@
 #include "hash_map.h"
 #include "util.h"
 
-static vector_t     countries;
-static hash_map_t   idx_by_iso;
+static vector_t     countries;  /* maps country names to country_info_t */
+static hash_map_t   idx_by_iso; /* maps iso names to country indices */
 
 enum {
     ISO_FIELD = 0,

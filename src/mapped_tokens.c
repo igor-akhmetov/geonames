@@ -78,7 +78,6 @@ geoname_indices_t mapped_geonames_by_token(char const *token) {
 
         if (token_idx != -1) {
             /* Found an entry with the same hash, let's compare strings. */
-
             char const *last = tokens.names + tokens.str_offset[token_idx];
             char const *first = last;
 

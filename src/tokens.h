@@ -14,7 +14,7 @@
    construct necessary data for query resolution. */
 void                    process_tokens();
 
-/* Dump all necessary data to a file to be later used
+/* Dump all necessary data to a file to be used later
    by a query program. */
 void                    dump_tokens(FILE *f);
 

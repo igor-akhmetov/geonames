@@ -18,7 +18,7 @@ char *          xstrdup(char const *src);
 /* Splits a string similar to strtok, but return all the results via vector. */
 vector_t        strsplit(char *str, char const *sep);
 
-/* Lower all ASCII symbols in the given string. */
+/* Lower all ASCII symbols in the given string. Doesn't handle UTF-8 symbols. */
 char *          strlower(char *str);
 
 /* Strip off '\r' and '\n' characters from the end of the string. */

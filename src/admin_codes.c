@@ -5,13 +5,13 @@
 #include "country_info.h"
 #include "util.h"
 
-hash_map_t admin1_names;
-hash_map_t admin2_names;
-
 typedef struct {
     char const *name1;
     char const *name2;
 } admin2_names_t;
+
+static hash_map_t admin1_names; /* maps admin1 codes to names */
+static hash_map_t admin2_names; /* maps admin2 codes to admin2_names_t */
 
 enum {
     ADMIN1_CODE_FIELD = 0,
@@ -26,7 +26,7 @@ void load_admin1_codes(char const *filename) {
 
     admin1_names = hash_map_init(sizeof(char const *));
 
-    while (tdb_next_row(db)) {        
+    while (tdb_next_row(db)) {
         char *name = xstrdup(tdb_field(db, ADMIN1_NAME_FIELD));
         hash_map_put(admin1_names, tdb_field(db, ADMIN1_CODE_FIELD), &name);
     }
@@ -39,7 +39,7 @@ void load_admin2_codes(char const *filename) {
 
     admin2_names = hash_map_init(sizeof(admin2_names_t));
 
-    while (tdb_next_row(db)) {        
+    while (tdb_next_row(db)) {
         admin2_names_t names;
 
         names.name1 = xstrdup(tdb_field(db, ADMIN2_NAME1_FIELD));

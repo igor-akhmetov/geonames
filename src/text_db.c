@@ -7,11 +7,11 @@
 #define MAX_FIELDS_NUM 16   /* maximum number of fields in a single line */
 
 typedef struct text_db_impl {
-    FILE        *f;
-    char        *filename;
-    char        buf[MAX_LINE_LEN];
-    int         nfields;
-    char        *fields[MAX_FIELDS_NUM];
+    FILE        *f;                      /* file to read data from */
+    char        *filename;               /* filename to report in error messages */
+    char        buf[MAX_LINE_LEN];       /* buffer to hold the current text line */
+    int         nfields;                 /* number of fields in the current line */
+    char        *fields[MAX_FIELDS_NUM]; /* pointers to start of the fields */
 } text_db_impl;
 
 text_db_t tdb_open(char const *filename) {
@@ -69,8 +69,7 @@ char const * tdb_field(text_db_t db, int idx) {
     return db->fields[idx];
 }
 
-void tdb_close(text_db_t db)
-{
+void tdb_close(text_db_t db) {
     assert(db);
     assert(db->f);
 

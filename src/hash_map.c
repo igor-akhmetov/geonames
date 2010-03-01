@@ -5,10 +5,10 @@
 #include "log.h"
 
 struct hash_map_impl {
-    int         elem_size;
-    int         nentries;
-    vector_t    keys;
-    vector_t    entries;
+    int         elem_size; /* size of values */
+    int         nentries;  /* number of entries */
+    vector_t    keys;      /* keys of the hash map */
+    vector_t    entries;   /* values of the hash map */
 };
 
 int hash_map_size(hash_map_t m) {

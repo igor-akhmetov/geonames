@@ -1,4 +1,4 @@
-/* Run interactive queries on a prepared database of geonames. */
+/* Run interactive queries on a preprocessed database of geonames. */
 
 #include "standard.h"
 #include "util.h"
@@ -11,8 +11,9 @@
 static int const MAX_RESULTS = 10; /* print no more than this number of results */
 
 static char const *dump_filename;  /* name of the file with the database of geonames */
-static int populate_data;
+static int populate_data;          /* should we ask the OS to populate mmaped file? */
 
+/* Parse command-line arguments. */
 static void parse_args(int argc, char *argv[]) {
     set_program_name(argv[0]);
     --argc; ++argv;
