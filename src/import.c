@@ -39,7 +39,9 @@ static void parse_args(int argc, char *argv[]) {
     }
 
     if (argc != 1)
-        usage("[-v] [-q] [data file]");
+        usage("[-v] [-q] [data file]\nArguments:\n"
+              "    -q  run interactive query loop after data processing\n"
+              "    -v  enable debug output");
 
     dump_filename = argv[0];
 }

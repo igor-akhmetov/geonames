@@ -29,7 +29,9 @@ static void parse_args(int argc, char *argv[]) {
     }
 
     if (argc != 1)
-        usage("[-p] [-v] [data file]");
+        usage("[-p] [-v] [data file]\nArguments:\n"
+              "    -p  populate mapped memory, make queries faster but use more memory\n"
+              "    -v  enable debug output");
 
     dump_filename = argv[0];
 }
