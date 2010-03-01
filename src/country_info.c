@@ -9,6 +9,7 @@
 static vector_t     countries;  /* maps country names to country_info_t */
 static hash_map_t   idx_by_iso; /* maps iso names to country indices */
 
+/* Semantics of fields in the input file. */
 enum {
     ISO_FIELD = 0,
     ISO3_FIELD = 1,

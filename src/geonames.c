@@ -5,6 +5,7 @@
 #include "text_db.h"
 #include "util.h"
 
+/* Semantics of fields in the input file. */
 enum {
     ID_FIELD = 0,
     NAME_FIELD = 1,
@@ -16,7 +17,7 @@ enum {
     POPULATION_FIELD = 14
 };
 
-static vector_t geonames;
+static vector_t geonames; /* vector of geoname_t structures */
 
 void load_geonames(char const * filename) {
     text_db_t db = tdb_open(filename);

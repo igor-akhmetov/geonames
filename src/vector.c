@@ -3,15 +3,14 @@
 #include "vector.h"
 #include "util.h"
 
+/* Initial number of elements in a vector. */
 static const int VECTOR_INITIAL_SIZE = 4;
 
-vector_t VECTOR_INIT = 0;
-
 typedef struct vector_impl {
-    int     elem_size;
-    int     size;
-    int     capacity;
-    void    *data;
+    int     elem_size;  /* size of an element */
+    int     size;       /* total number of elements in the array */
+    int     capacity;   /* allocated number of elements */
+    void    *data;      /* pointer to reserved memory */
 } vector_impl;
 
 vector_t vector_init(int elem_size) {

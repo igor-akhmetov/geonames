@@ -73,6 +73,7 @@ geoname_indices_t mapped_geonames_by_token(char const *token) {
     mask = tokens.map_size - 1;
     start_pos = strhash(token) & mask;
 
+    /* Iterate over the values in the hash table. */
     for (i = start_pos, j = 0;;) {
         int token_idx = tokens.token_idx[i];
 
@@ -81,6 +82,8 @@ geoname_indices_t mapped_geonames_by_token(char const *token) {
             char const *last = tokens.names + tokens.str_offset[token_idx];
             char const *first = last;
 
+            /* Need to find the beginning of the string, because we store
+               offset to the last character of token name. */
             while (*first)
                 --first;
             ++first;

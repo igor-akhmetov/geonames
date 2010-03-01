@@ -13,6 +13,7 @@ typedef struct {
 static hash_map_t admin1_names; /* maps admin1 codes to names */
 static hash_map_t admin2_names; /* maps admin2 codes to admin2_names_t */
 
+/* Semantics of fields in the input file. */
 enum {
     ADMIN1_CODE_FIELD = 0,
     ADMIN1_NAME_FIELD = 1,

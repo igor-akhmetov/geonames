@@ -5,7 +5,7 @@
 #include "log.h"
 
 struct hash_map_impl {
-    int         elem_size; /* size of values */
+    int         elem_size; /* size of a single value */
     int         nentries;  /* number of entries */
     vector_t    keys;      /* keys of the hash map */
     vector_t    entries;   /* values of the hash map */
