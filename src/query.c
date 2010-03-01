@@ -8,7 +8,8 @@
 
 static int const MAX_RESULTS = 10;
 
-static char const *dump_filename;
+static char const *dump_filename;  /* name of the file with the database of geonames */
+static int populate_data;
 
 static void parse_args(int argc, char *argv[]) {
     set_program_name(argv[0]);
@@ -17,6 +18,8 @@ static void parse_args(int argc, char *argv[]) {
     while (argc) {
         if (!strcmp(argv[0], "-v"))
             set_verbose(1);
+        else if (!strcmp(argv[0], "-p"))
+            populate_data = 1;
         else
             break;
 
@@ -24,13 +27,13 @@ static void parse_args(int argc, char *argv[]) {
     }
 
     if (argc != 1)
-        usage("[-v] [data file]");
+        usage("[-p] [-v] [data file]");
 
     dump_filename = argv[0];
 }
 
 static void load_data(char const *filename) {
-    void const *data = map_file_read(filename);
+    void const *data = map_file_read(filename, populate_data);
     data = init_mapped_geonames(data);
     init_mapped_tokens(data);
 }

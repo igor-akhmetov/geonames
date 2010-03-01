@@ -6,7 +6,8 @@ void *          xmalloc(size_t size);
 void *          xcalloc(size_t size);
 void *          xrealloc(void *ptr, size_t size);
 
-void const *    map_file_read(char const *filename);
+/* Map read-only view of file to the process' memory. */
+void const *    map_file_read(char const *filename, int populate_data);
 
 char *          xstrdup(char const *src);
 vector_t        strsplit(char *str, char const *sep);

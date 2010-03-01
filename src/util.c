@@ -72,7 +72,7 @@ unsigned strhash(char const * key) {
 
 #include <windows.h>
 
-void const * map_file_read(char const *filename) {
+void const * map_file_read(char const *filename, int populate_data) {
     void const *res = 0;
     HANDLE file, mapping;
 
@@ -97,7 +97,7 @@ void const * map_file_read(char const *filename) {
 #include <sys/stat.h>
 #include <fcntl.h>
 
-void const * map_file_read(char const *filename) {
+void const * map_file_read(char const *filename, int populate_data) {
     void *addr;
     struct stat sb;
 
@@ -108,9 +108,13 @@ void const * map_file_read(char const *filename) {
     if (fstat(fd, &sb) == -1)
         cerror("fstat");
 
-    addr = mmap(NULL, sb.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+    addr = mmap(NULL, sb.st_size, PROT_READ,
+                MAP_PRIVATE | (populate_data ? MAP_POPULATE : 0), fd, 0);
     if (addr == MAP_FAILED)
         cerror("mmap");
+
+    if (madvise(addr, sb.st_size, MADV_WILLNEED | MADV_RANDOM))
+        cerror("madvise");
 
     return addr;
 }
