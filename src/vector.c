@@ -75,7 +75,7 @@ void *vector_push(vector_t v, void *data) {
         if (!v->data)
             vector_reserve(v, VECTOR_INITIAL_SIZE);
         else
-            vector_reserve(v, v->capacity * 1.5);
+            vector_reserve(v, (int)(v->capacity * 1.5));
     }
 
     ++v->size;

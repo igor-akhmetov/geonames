@@ -73,7 +73,7 @@ end:
 void run_interactive_loop(geonames_by_token_func geonames_func,
                           int max_results,
                           process_geoname_id_func process_func) {
-    char q[4096];
+    char q[MAX_QUERY_LENGTH];
 
     debug("Ready to serve\n");
 
