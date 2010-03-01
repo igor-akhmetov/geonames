@@ -10,6 +10,7 @@
 
 #include <assert.h>
 #include <errno.h>
+#include <malloc.h>
 #include <memory.h>
 #include <stdarg.h>
 #include <stdio.h>

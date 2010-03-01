@@ -57,10 +57,11 @@ void load_admin_codes(char const *admin1_filename, char const *admin2_filename) 
 }
 
 void get_admin_names(int country_idx, char const *code1, char const *code2, admin_names_t * names) {
-    char buf[64];
     country_info_t const *ci = country(country_idx);
     char const **admin1;
     admin2_names_t const *admin2;
+    int len = strlen(ci->iso) + strlen(code1) + strlen(code2) + 3;
+    char *buf = alloca(len);
 
     assert(names);
     assert(ci);
@@ -70,7 +71,7 @@ void get_admin_names(int country_idx, char const *code1, char const *code2, admi
     if (!code1)
         return;
 
-    snprintf(buf, sizeof buf, "%s.%s", ci->iso, code1);
+    snprintf(buf, len, "%s.%s", ci->iso, code1);
     admin1 = (char const **) hash_map_get(admin1_names, buf);
     if (admin1)
         names->admin1_name = *admin1;
@@ -78,7 +79,7 @@ void get_admin_names(int country_idx, char const *code1, char const *code2, admi
     if (!code2)
         return;
 
-    snprintf(buf, sizeof buf, "%s.%s.%s", ci->iso, code1, code2);
+    snprintf(buf, len, "%s.%s.%s", ci->iso, code1, code2);
     admin2 = (admin2_names_t const *) hash_map_get(admin2_names, buf);
     if (admin2) {
         names->admin2_name1 = admin2->name1;
