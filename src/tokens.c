@@ -212,6 +212,8 @@ void compress_indices() {
 }
 
 void process_tokens() {
+    char zero = 0;
+
     tokens = hash_map_init(sizeof(int));
     tokens_str = vector_init(sizeof(char));
     str_offset = vector_init(sizeof(int));
@@ -221,6 +223,10 @@ void process_tokens() {
     tmp_file = tmpfile();
     if (!tmp_file)
         cerror("can't create temporary file");
+
+    /* Need NULL character as a first element of the names
+       string in order to share one name between several tokens. */
+    vector_push(tokens_str, &zero);
 
     collect_tokens();
     debug("%d tokens, %d indices\n", ntokens, nindices);
