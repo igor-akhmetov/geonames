@@ -7,6 +7,10 @@ void *          xmalloc(size_t size);
 void *          xcalloc(size_t size);
 void *          xrealloc(void *ptr, size_t size);
 
+/* Functions for working with files. */
+
+/* Read whole file into memory. */
+void const *    read_file(char const *filename);
 /* Map read-only view of file to the process' memory. */
 void const *    map_file_read(char const *filename, int populate_data);
 

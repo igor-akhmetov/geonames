@@ -68,6 +68,32 @@ unsigned strhash(char const * key) {
     return res;
 }
 
+void const * read_file(char const *filename) {
+    FILE *f;
+    int size;
+    void *res;
+
+    f = fopen(filename, "rt");
+    if (!f)
+        cerror("can't open %s", filename);
+
+    if (fseek(f, 0, SEEK_END))
+        cerror("fseek");
+
+    size = (int) ftell(f);
+    if (size == -1)
+        cerror("ftell");
+
+    rewind(f);
+    res = xmalloc(size);
+
+    fread(res, 1, size, f);
+    if (ferror(f))
+        cerror("fread");
+
+    return res;
+}
+
 #ifdef _MSC_VER
 
 #include <windows.h>
