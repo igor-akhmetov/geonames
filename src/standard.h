@@ -1,5 +1,7 @@
 #pragma once
 
+/* Standard header files and portability macroses. */
+
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #pragma warning(disable: 4996)

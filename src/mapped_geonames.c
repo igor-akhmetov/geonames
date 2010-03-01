@@ -5,15 +5,16 @@
 #pragma pack(push, 1)
 
 typedef struct {
-    int id;
-    int str_offset;
+    int id;         /* geoname id */
+    int str_offset; /* offset of the geoname's name */
 } mapped_geoname_t;
 
 typedef struct {
-    int                         num;
-    mapped_geoname_t const *    geonames;
-    int                         names_len;
-    char const *                names;
+    int                         num;       /* total number of geonames */
+    mapped_geoname_t const *    geonames;  /* geonames' data */
+    int                         names_len; /* length of the flattened list of
+                                              geonames' names... */
+    char const *                names;     /* ...and its contents */
 } mapped_geonames_t;
 
 #pragma pack(pop)

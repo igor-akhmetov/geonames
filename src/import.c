@@ -1,3 +1,5 @@
+/* Import data from the geonames.org database. */
+
 #include "standard.h"
 #include "country_info.h"
 #include "geonames.h"
@@ -7,14 +9,20 @@
 #include "admin_codes.h"
 #include "process_query.h"
 
+/* The program requires the following files from
+   http://download.geonames.org/export/dump to be
+   present in the working directory: */
+
 static char const *COUNTRY_INFO_FILE    = "countryInfo.txt";
 static char const *GEONAMES_INFO_FILE   = "allCountries.txt";
 static char const *ADMIN1_CODES_FILE    = "admin1Codes.txt";
 static char const *ADMIN2_CODES_FILE    = "admin2Codes.txt";
 
-static char const *dump_filename;
-static int run_query_loop;
+static char const *dump_filename;  /* name of the file to dump processed data to */
+static int run_query_loop;         /* should an query interactive loop be run
+                                      after the data is processed? */
 
+/* Parse command-line arguments. */
 static void parse_args(int argc, char *argv[]) {
     set_program_name(argv[0]);
     --argc; ++argv;
@@ -41,7 +49,7 @@ static void load_data() {
     load_countries(COUNTRY_INFO_FILE);
     debug("done, %d countries total\n", countries_num());
 
-     debug("reading admin codes...\n");
+    debug("reading admin codes...\n");
     load_admin_codes(ADMIN1_CODES_FILE, ADMIN2_CODES_FILE);
     debug("done\n", countries_num());
 
@@ -52,7 +60,7 @@ static void load_data() {
 
 static void process() {
     debug("sorting geonames by population...\n");
-    sort_geonames();
+    sort_geonames_by_population();
     debug("done, %d geonames total\n", geonames_num());
 
     debug("building table of tokens...\n");

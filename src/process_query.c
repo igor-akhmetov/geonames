@@ -3,19 +3,28 @@
 #include "util.h"
 #include "log.h"
 
+#define MAX_QUERY_LENGTH 16384 /* maximum length of a query string */
+
 geoname_idx_t geoname_idx(geoname_indices_t v, int idx) {
     return *(geoname_idx_t *) vector_at(v, idx);
 }
 
-geoname_indices_t process_query(vector_t tokens, int max_results, geonames_by_token_func func) {
+/* Get lists of geoname indices for all of the given tokens and
+   return no more than max_results entries from their intersection. */
+static geoname_indices_t process_query(vector_t tokens, int max_results,
+                                       geonames_by_token_func func) {
     int i, ntokens = vector_size(tokens);
 
+    /* Lists of tokens. */
     geoname_indices_t   *lists = xmalloc(ntokens * sizeof(vector_t));
+    /* Size of each list. */
     int                 *sizes = xmalloc(ntokens * sizeof(int));
+    /* Current index in the intersection algorithm in each of the lists. */
     int                 *pos   = xmalloc(ntokens * sizeof(int));
 
     geoname_indices_t res = vector_init(sizeof(geoname_idx_t));
 
+    /* Get geoname indices for each token. */
     for (i = 0; i < ntokens; ++i) {
         char const *token = *(char const **) vector_at(tokens, i);
 
@@ -27,6 +36,7 @@ geoname_indices_t process_query(vector_t tokens, int max_results, geonames_by_to
             goto end;
     }
 
+    /* Find intersection of the results. */
     for (;;) {
         int idx = 0;
         for (i = 0; i < ntokens; ++i) {

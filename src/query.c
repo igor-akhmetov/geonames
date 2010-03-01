@@ -1,3 +1,5 @@
+/* Run interactive queries on a prepared database of geonames. */
+
 #include "standard.h"
 #include "util.h"
 #include "vector.h"
@@ -6,7 +8,7 @@
 #include "log.h"
 #include "process_query.h"
 
-static int const MAX_RESULTS = 10;
+static int const MAX_RESULTS = 10; /* print no more than this number of results */
 
 static char const *dump_filename;  /* name of the file with the database of geonames */
 static int populate_data;
@@ -42,7 +44,7 @@ static void print_geoname_info(geoname_idx_t idx) {
     printf("%d\t%s\n", mapped_geoname_id(idx), mapped_geoname_name(idx));
 }
 
-int main(int argc, char *argv[]) {    
+int main(int argc, char *argv[]) {
     parse_args(argc, argv);
     load_data(dump_filename);
     run_interactive_loop(mapped_geonames_by_token, MAX_RESULTS, print_geoname_info);

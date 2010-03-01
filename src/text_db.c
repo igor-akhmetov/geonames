@@ -3,8 +3,8 @@
 #include "text_db.h"
 #include "util.h"
 
-#define MAX_LINE_LEN 16384
-#define MAX_FIELDS_NUM 16
+#define MAX_LINE_LEN 16384  /* maximum line length */
+#define MAX_FIELDS_NUM 16   /* maximum number of fields in a single line */
 
 typedef struct text_db_impl {
     FILE        *f;
@@ -32,11 +32,14 @@ int tdb_next_row(text_db_t db) {
         char *field = line;
         int first = strspn(line, " \t");
 
+        /* Check if the current line is a comment. */
         if (first == strlen(line) || line[first] == '#')
             continue;
 
+        /* Strip end-of-line characters. */
         strtrim(line);
 
+        /* Iterate over fields of the current line. */
         for (db->nfields = 0; db->nfields < MAX_FIELDS_NUM;) {
             char * next_field = field;
             for (; *next_field && *next_field != '\t'; ++next_field);

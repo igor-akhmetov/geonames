@@ -6,16 +6,19 @@
 #pragma pack(push, 1)
 
 typedef struct {
-    int                     map_size;
-    int const *             token_idx;
-    int                     ntokens;
-    int const *             str_offset;
-    int const *             indices_offset;
-    int const *             indices_num;
-    int                     names_len;
-    char const *            names;
-    int                     indices_len;
-    int const *             indices;
+    int          map_size;       /* number of entries in the hash table */
+    int const *  token_idx;      /* entries in the table, hash -> token index */
+    int          ntokens;        /* total number of tokens */
+    int const *  str_offset;     /* offset of the token name string */
+    int const *  indices_offset; /* offset of the list of geoname indices
+                                    for each token */
+    int const *  indices_num;    /* number of geoname indices for each token */
+    int          names_len;      /* length of the string which contains
+                                    names of tokens */
+    char const * names;          /* flattened list of token names */
+    int          indices_len;    /* total number of geoname indices */
+    int const *  indices;        /* flattened list of lists of geoname
+                                    indices for each token */
 } mapped_tokens_t;
 
 #pragma pack(pop)
@@ -65,15 +68,17 @@ void init_mapped_tokens(void const *p) {
 }
 
 geoname_indices_t mapped_geonames_by_token(char const *token) {
-    int start_pos = 0, i = 0, j = 0, mask = 0;
+    int start_pos, i, j, mask;
 
     mask = tokens.map_size - 1;
     start_pos = strhash(token) & mask;
 
-    for (i = start_pos;;) {
+    for (i = start_pos, j = 0;;) {
         int token_idx = tokens.token_idx[i];
 
         if (token_idx != -1) {
+            /* Found an entry with the same hash, let's compare strings. */
+
             char const *last = tokens.names + tokens.str_offset[token_idx];
             char const *first = last;
 
@@ -82,10 +87,12 @@ geoname_indices_t mapped_geonames_by_token(char const *token) {
             ++first;
 
             if (!strncmp(token, first, last - first + 1)) {
+                /* Found a token with the given name! */
                 return vector_from_memory(sizeof(int), tokens.indices_num[token_idx],
                                           tokens.indices + tokens.indices_offset[token_idx]);
             }
         } else
+            /* There is no token with the given name. */
             break;
 
         i = (i + (j++ << 1) + 1) & mask;

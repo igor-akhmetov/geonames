@@ -1,5 +1,7 @@
 #pragma once
 
+/* Resizable array implementation. */
+
 struct vector_impl;
 typedef struct vector_impl * vector_t;
 

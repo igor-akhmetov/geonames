@@ -1,8 +1,8 @@
 #include "standard.h"
 #include "log.h"
 
-static int verbose;
-static char const *program_name;
+static int verbose;              /* should we print debug messages? */
+static char const *program_name; /* program name to use in error messages */
 
 void set_verbose(int val) {
     verbose = val;
@@ -18,32 +18,32 @@ void debug(char const *msg, ...) {
     if (!verbose)
         return;
 
-    va_start(args, msg);  
+    va_start(args, msg);
     vprintf(msg, args);
     va_end(args);
 }
 
-void usage(char const *msg, ...) {   
+void usage(char const *msg, ...) {
     va_list args;
-    va_start(args, msg);  
+    va_start(args, msg);
 
     fprintf(stderr, "usage: %s ", program_name);
     vfprintf(stderr, msg, args);
     fputs("\n", stderr);
 
-    va_end(args);    
+    va_end(args);
     exit(EXIT_FAILURE);
 }
 
-void error(char const *msg, ...) {   
+void error(char const *msg, ...) {
     va_list args;
-    va_start(args, msg);  
+    va_start(args, msg);
 
     fprintf(stderr, "%s: ", program_name);
     vfprintf(stderr, msg, args);
     fputs("\n", stderr);
 
-    va_end(args);    
+    va_end(args);
     exit(EXIT_FAILURE);
 }
 
@@ -51,7 +51,7 @@ void cerror(char const *msg, ...) {
     char buf[1024];
 
     va_list args;
-    va_start(args, msg);  
+    va_start(args, msg);
     vsnprintf(buf, sizeof buf, msg, args);
     va_end(args);
 

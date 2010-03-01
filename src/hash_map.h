@@ -1,5 +1,7 @@
 #pragma once
 
+/* Implementation of a hash map from string keys to generic data. */
+
 struct hash_map_impl;
 typedef struct hash_map_impl * hash_map_t;
 

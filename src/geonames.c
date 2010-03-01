@@ -9,6 +9,7 @@ enum {
     ID_FIELD = 0,
     NAME_FIELD = 1,
     ALTERNATE_NAMES_FIELD = 3,
+    CATEGORY_FIELD = 6,
     COUNTRY_FIELD = 8,
     ADMIN1_CODE_FIELD = 10,
     ADMIN2_CODE_FIELD = 11,
@@ -21,14 +22,13 @@ void load_geonames(char const * filename) {
     text_db_t db = tdb_open(filename);
 
     geonames = vector_init(sizeof(geoname_t));
-    
+
     while (tdb_next_row(db)) {
-        geoname_t g = {0};        
+        geoname_t g = {0};
         char const *admin1_code;
         char const *admin2_code;
 
-        char const * cat = tdb_field(db, 6);
-        if (strcmp(cat, "P"))
+        if (strcmp(tdb_field(db, CATEGORY_FIELD), "P"))
             continue;
 
         g.id                = atoi(tdb_field(db, ID_FIELD));
@@ -50,14 +50,14 @@ void load_geonames(char const * filename) {
     tdb_close(db);
 }
 
-int geoname_compare(void const *p, void const *q) {
+static int geoname_compare(void const *p, void const *q) {
     geoname_t const *x = p;
     geoname_t const *y = q;
 
     return y->population - x->population;
 }
 
-void sort_geonames() {
+void sort_geonames_by_population() {
     vector_sort(geonames, geoname_compare);
 }
 
@@ -65,18 +65,8 @@ int geonames_num() {
     return vector_size(geonames);
 }
 
-geoname_t const *geoname(int idx) {    
+geoname_t const *geoname(int idx) {
     return (geoname_t const *) vector_at(geonames, idx);
-}
-
-void dump_geonames_text() {
-    int i = 0, n = geonames_num();
-
-    printf("All geonames (id, name, country id, population):\n");
-    for (i = 0; i != n; ++i) {
-        geoname_t const *g = geoname(i);
-        printf("%d\t%s\t%d\t%d\n", g->id, g->name, g->country_idx, g->population);
-    }
 }
 
 void dump_geonames(FILE *f) {

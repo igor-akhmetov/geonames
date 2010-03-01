@@ -1,5 +1,7 @@
 #pragma once
 
+/* Database of administration codes. */
+
 typedef struct admin_names_t {
     char const *admin1_name;
     char const *admin2_name1;

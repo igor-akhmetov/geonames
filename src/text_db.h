@@ -1,5 +1,7 @@
 #pragma once
 
+/* Interface for reading a text file with tab-separated fields. */
+
 struct text_db_impl;
 typedef struct text_db_impl *text_db_t;
 

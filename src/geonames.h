@@ -1,5 +1,7 @@
 #pragma once
 
+/* Database of geographic places. */
+
 #include "vector.h"
 #include "country_info.h"
 #include "admin_codes.h"
@@ -14,8 +16,7 @@ typedef struct {
 } geoname_t;
 
 void                load_geonames(char const *filename);
-void                sort_geonames();
+void                sort_geonames_by_population();
 int                 geonames_num();
 geoname_t const *   geoname(int idx);
-void                dump_geonames_text();
 void                dump_geonames(FILE *f);
