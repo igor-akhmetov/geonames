@@ -21,6 +21,7 @@ static char const *ADMIN2_CODES_FILE    = "admin2Codes.txt";
 static char const *dump_filename;  /* name of the file to dump processed data to */
 static int run_query_loop;         /* should an query interactive loop be run
                                       after the data is processed? */
+static int nresults;               /* how many results to print */
 
 /* Parse command-line arguments. */
 static void parse_args(int argc, char *argv[]) {
@@ -32,16 +33,20 @@ static void parse_args(int argc, char *argv[]) {
             set_verbose(1);
         else if (!strcmp(argv[0], "-q"))
             run_query_loop = 1;
-        else
+        else if (!strcmp(argv[0], "-n")) {
+          --argc; ++argv;
+          nresults = atoi(argv[0]);
+        } else
             break;
 
         --argc; ++argv;
     }
 
     if (argc != 1)
-        usage("[-v] [-q] [data file]\nArguments:\n"
+        usage("[-v] [-q] [-n nresults] [data file]\nArguments:\n"
               "    -q  run interactive query loop after data processing\n"
-              "    -v  enable debug output");
+              "    -v  enable debug output\n"
+              "    -n  how many resuls to print in interactive mode");
 
     dump_filename = argv[0];
 }
@@ -113,7 +118,7 @@ int main(int argc, char *argv[]) {
     dump_data(dump_filename);
 
     if (run_query_loop)
-        run_interactive_loop(geonames_by_token, 0, print_geoname_info);
+        run_interactive_loop(geonames_by_token, nresults, print_geoname_info);
 
     return EXIT_SUCCESS;
 }
