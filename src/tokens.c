@@ -15,6 +15,7 @@ static vector_t token_indices_num; /* length geoname indices list for each token
 static int *token_offset;      /* offset of geoname indices list for each token */
 static int nindices, ntokens;  /* total numbers of indices and tokens */
 static FILE *tmp_file;         /* temporary file used to hold intermediate results */
+static vector_t tokens_for_geoname;
 
 /* Add a new string to the list of all names. */
 static int add_token_text(char *str) {
@@ -33,6 +34,7 @@ static void add_token(char *word, geoname_idx_t geo_idx) {
 
     do {
         int *pidx = (int *) hash_map_get(tokens, word);
+        geoname_idx_t last = {0};
 
         if (!pidx) {
             /* Add a new token. */
@@ -47,15 +49,17 @@ static void add_token(char *word, geoname_idx_t geo_idx) {
             vector_push(token_indices_num, &z);
         }
 
-        if (geoname_idx(last_geoname_idx, *pidx) != geo_idx) {
+        last = geoname_idx(last_geoname_idx, *pidx);
+
+        if (last.idx != geo_idx.idx) {
             int nused = (*(int *) vector_at(token_indices_num, *pidx)) + 1;
             vector_set(last_geoname_idx, *pidx, &geo_idx);
             vector_set(token_indices_num, *pidx, &nused);
-            /* For each geoname save the indices of all matching tokens in
-            temporary file. This information will be used later to construct
-            indices list for each token. */
-            fwrite(pidx, sizeof(geoname_idx_t), 1, tmp_file);
             ++nindices;
+            vector_push(tokens_for_geoname, pidx);
+        } else if (last.type != geo_idx.type) {
+            last.type |= geo_idx.type;
+            vector_set(last_geoname_idx, *pidx, &last);
         }
 
         word[--len] = 0;
@@ -110,32 +114,49 @@ static void add_tokens(char const *str, geoname_idx_t geo_idx) {
 /* Iterate through all of the geonames and generate tokens
    for all sensible attributes. */
 static void collect_tokens() {
-    int i, geoname_bound = -1;
+    int i;
 
-    last_geoname_idx = vector_init(sizeof(int));
+    last_geoname_idx = vector_init(sizeof(geoname_idx_t));
 
     for (i = geonames_num() - 1; i >= 0; --i) {
         geoname_t const *g = geoname(i);
         country_info_t const *ci = country(g->country_idx);
+        int tokens_num;
+        geoname_idx_t idx;
 
         if (!(i % 10000))
             debug("processing geoname %d, %d tokens so far\n",
                   geonames_num() - i, vector_size(str_offset));
 
-        add_tokens(g->name, i);
-        add_tokens(g->alternate_names, i);
-        add_tokens(g->admin_names.admin1_name, i);
-        add_tokens(g->admin_names.admin2_name1, i);
-        add_tokens(g->admin_names.admin2_name2, i);
+        tokens_for_geoname = vector_init(sizeof(geoname_idx_t));
+
+        idx.type = GEONAME_PLACE;
+        idx.idx = i;
+        add_tokens(g->name, idx);
+
+        idx.type = 0;
+        add_tokens(g->alternate_names, idx);
+        add_tokens(g->admin_names.admin1_name, idx);
+        add_tokens(g->admin_names.admin2_name1, idx);
+        add_tokens(g->admin_names.admin2_name2, idx);
 
         if (ci) {
-            add_tokens(ci->name, i);
-            add_tokens(ci->fips, i);
-            add_tokens(ci->iso, i);
-            add_tokens(ci->iso3, i);
+            add_tokens(ci->name, idx);
+            add_tokens(ci->fips, idx);
+            add_tokens(ci->iso, idx);
+            add_tokens(ci->iso3, idx);
         }
 
-        fwrite(&geoname_bound, sizeof geoname_bound, 1, tmp_file);
+        tokens_num = vector_size(tokens_for_geoname);
+
+        /* For each geoname save the indices of all matching tokens in
+           temporary file. This information will be used later to construct
+           indices list for each token. */
+        fwrite(&tokens_num, sizeof tokens_num, 1, tmp_file);
+        fwrite(vector_at(tokens_for_geoname, 0), sizeof(geoname_idx_t),
+               vector_size(tokens_for_geoname), tmp_file);
+
+        vector_free(tokens_for_geoname);
     }
 
     vector_free(last_geoname_idx);
@@ -158,19 +179,24 @@ static void calc_offsets() {
    each geoname, and generate an array which contains list
    of geonames for each token. */
 static void fill_indices() {
-    int i;
-    geoname_idx_t cur_geoname = geonames_num() - 1;
+    int cur_geoname = geonames_num() - 1;
 
     geoname_indices = xmalloc(nindices * sizeof(geoname_idx_t));
 
-    for (i = 0; i < nindices + geonames_num(); ++i) {
-        int token;
-        fread(&token, sizeof token, 1, tmp_file);
-        if (token == -1)
-            --cur_geoname;
-        else {
-            --token_offset[token];
-            geoname_indices[token_offset[token]] = cur_geoname;
+    for (; cur_geoname >= 0; --cur_geoname) {
+        int j, len;
+
+        fread(&len, sizeof len, 1, tmp_file);
+
+        for (j = 0; j != len; ++j) {
+            geoname_idx_t token, res;
+            fread(&token, sizeof token, 1, tmp_file);
+
+            res.idx = cur_geoname;
+            res.type = token.type;
+
+            --token_offset[token.idx];
+            geoname_indices[token_offset[token.idx]] = res;
         }
     }
 }
@@ -178,8 +204,10 @@ static void fill_indices() {
 /* Calculate hash of a range of geoname indices. */
 static unsigned calc_hash(geoname_idx_t *p, geoname_idx_t *q, int hash_size) {
     unsigned res = 0;
-    while (p != q)
-        res = (res * 37 + *p++ + 1) % hash_size;
+    while (p != q) {
+        res = (res * 37 + p->idx + 1) % hash_size;
+        ++p;
+    }
     return res;
 }
 
@@ -195,7 +223,7 @@ static int are_indices_equal(int t1, int t2) {
         return 0;
 
     for (; p1 != q1; ++p1, ++p2)
-        if (*p1 != *p2)
+        if (p1->idx != p2->idx || p1->type != p2->type)
             return 0;
 
     return 1;

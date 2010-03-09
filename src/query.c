@@ -56,7 +56,7 @@ static void load_data(char const *filename) {
 }
 
 static void print_geoname_info(geoname_idx_t idx) {
-    printf("%d\t%s\n", mapped_geoname_id(idx), mapped_geoname_name(idx));
+    printf("%d\t%s\n", mapped_geoname_id(idx.idx), mapped_geoname_name(idx.idx));
 }
 
 int main(int argc, char *argv[]) {

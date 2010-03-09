@@ -93,7 +93,7 @@ static void dump_data(char const *filename) {
    called to process result geonames from the interactive
    query loop. */
 static void print_geoname_info(geoname_idx_t geoname_idx) {
-    geoname_t const *geo = geoname(geoname_idx);
+    geoname_t const *geo = geoname(geoname_idx.idx);
     country_info_t const *ci = country(geo->country_idx);
     printf("%d %s\n"
            "\tCountry: %s %s %s %s\n"

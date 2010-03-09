@@ -5,8 +5,16 @@
 
 #include "vector.h"
 
-typedef int         geoname_idx_t;     /* index of a geoname */
+typedef struct {
+  unsigned type : 1;
+  unsigned idx  : 31;
+} geoname_idx_t;
+
 typedef vector_t    geoname_indices_t; /* vector of geoname indices */
+
+typedef enum {
+  GEONAME_PLACE = 1,
+} GEONAME_TYPE;
 
 /* Helper function to ease operations with vector. */
 geoname_idx_t       geoname_idx(geoname_indices_t v, int idx);
